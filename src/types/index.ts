@@ -45,8 +45,20 @@ export interface IPost {
   category: string;
   upvote: number;
   downvote: number;
-  title: string;
-  content: string;
+  post: string;
   comments: Comment[];
   votes: Vote[];
+}
+export type TRole = "user" | "admin";
+
+export interface IUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: TRole;
+  phone: string;
+  address: string;
+  followers: number;
+  following: number;
+  image: IImage[];
 }

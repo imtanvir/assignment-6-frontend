@@ -12,11 +12,12 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
+import Styles from "./Post.module.css";
 import PostActionModal from "./postActionModal";
 
 import { IPost } from "@/src/types";
 
-const PostCard = ({ post }: { post: IPost }) => {
+const PostCard = ({ singlePost }: { singlePost: IPost }) => {
   const [isFollowed, setIsFollowed] = React.useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const {
@@ -26,11 +27,10 @@ const PostCard = ({ post }: { post: IPost }) => {
     category,
     upvote,
     downvote,
-    title,
-    content,
+    post,
     comments,
     votes,
-  } = post;
+  } = singlePost;
 
   return (
     <section className="py-5">
@@ -103,9 +103,13 @@ const PostCard = ({ post }: { post: IPost }) => {
             </svg>
           </Button>
         </CardHeader>
-        <CardBody className="px-3 py-0 text-small text-default-400">
-          <h1>{title}</h1>
-          <p className="my-3">{content}</p>
+        <CardBody className="px-3 py-0 text-small text-default-600">
+          <div className="p-5">
+            <div
+              dangerouslySetInnerHTML={{ __html: post }}
+              className={Styles.Output}
+            />
+          </div>
 
           <div className="relative w-full md:h-[300px] h-[200px] overflow-hidden">
             <Image
@@ -197,10 +201,9 @@ const PostCard = ({ post }: { post: IPost }) => {
               </svg>
               <PostActionModal
                 comments={comments}
-                content={content}
                 image={image[0]?.url}
                 isOpen={isOpen}
-                title={title}
+                post={post}
                 user={user}
                 onOpenChange={onOpenChange}
               />

@@ -3,7 +3,6 @@ import {
   Avatar,
   Button,
   Divider,
-  Input,
   Modal,
   ModalBody,
   ModalContent,
@@ -12,6 +11,10 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 
+import FXForm from "../form/FXForm";
+import FXInput from "../form/FXInput";
+
+import Styles from "./Post.module.css";
 import PostCommentCard from "./postCommentCard";
 
 import { Comment, User } from "@/src/types";
@@ -20,17 +23,15 @@ export default function PostActionModal({
   isOpen,
   onOpenChange,
   user,
-  title,
+  post,
   comments,
-  content,
   image,
 }: {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   user: User;
-  title: string;
+  post: string;
   comments: Comment[];
-  content: string;
   image: string;
 }) {
   return (
@@ -50,8 +51,12 @@ export default function PostActionModal({
               </ModalHeader>
               <ModalBody>
                 <section>
-                  <h1 className="font-bold">{title}</h1>
-                  <p className="py-2">{content}</p>
+                  <div className="p-5">
+                    <div
+                      dangerouslySetInnerHTML={{ __html: post }}
+                      className={Styles.Output}
+                    />
+                  </div>
                   <div className="relative w-full md:h-[300px] h-[200px] overflow-hidden">
                     <Image
                       fill
@@ -79,44 +84,49 @@ export default function PostActionModal({
               <ModalFooter className="block">
                 <Divider className="my-2" />
                 <div>
-                  <form className="flex gap-4 items-center">
-                    <Avatar
-                      isBordered
-                      radius="full"
-                      size="sm"
-                      src={user?.image[0]?.url ? user?.image[0]?.url : ""}
-                    />
-                    <Input
-                      className="w-full"
-                      placeholder="Comment on this post"
-                      size="lg"
-                      type="text"
-                      variant={"faded"}
-                    />
-                    <Button
-                      isIconOnly
-                      className=""
-                      size="sm"
-                      title="Send"
-                      type="submit"
-                      variant="light"
-                    >
-                      <svg
-                        className="size-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+                  <FXForm onSubmit={() => {}}>
+                    <div className="flex gap-4 items-center">
+                      <Avatar
+                        isBordered
+                        radius="full"
+                        size="sm"
+                        src={user?.image[0]?.url ? user?.image[0]?.url : ""}
+                      />
+                      <FXInput
+                        className="w-full"
+                        label=""
+                        name="comment"
+                        placeholder="Comment on this post"
+                        size="lg"
+                        type="text"
+                        value=""
+                        variant={"faded"}
+                      />
+                      <Button
+                        isIconOnly
+                        className=""
+                        size="sm"
+                        title="Send"
+                        type="submit"
+                        variant="light"
                       >
-                        <path
-                          d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </Button>
-                  </form>
+                        <svg
+                          className="size-6"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </Button>
+                    </div>
+                  </FXForm>
                 </div>
               </ModalFooter>
             </>

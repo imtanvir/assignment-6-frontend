@@ -1,3 +1,4 @@
+"use client";
 import { Link } from "@nextui-org/link";
 import {
   NavbarBrand,
@@ -11,43 +12,40 @@ import {
 import { link as linkStyles } from "@nextui-org/theme";
 import clsx from "clsx";
 import NextLink from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+
+import NavbarDropdown from "./NavbarDropdown";
 
 import { Logo } from "@/src/components/icons";
 import { ThemeSwitch } from "@/src/components/UI/theme-switch";
 import { siteConfig } from "@/src/config/site";
+import { protectedRoutes } from "@/src/constant";
+import { useUser } from "@/src/context/user.provider";
+import { logout } from "@/src/services/AuthService";
 
 export const Navbar = () => {
-  // const searchInput = (
-  //   <Input
-  //     aria-label="Search"
-  //     classNames={{
-  //       inputWrapper: "bg-default-100",
-  //       input: "text-sm",
-  //     }}
-  //     endContent={
-  //       <Kbd className="hidden lg:inline-block" keys={["command"]}>
-  //         K
-  //       </Kbd>
-  //     }
-  //     labelPlacement="outside"
-  //     placeholder="Search..."
-  //     startContent={
-  //       <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-  //     }
-  //     type="search"
-  //   />
-  // );
+  const { user, setIsLoading: userLoading } = useUser();
+  const pathname = usePathname();
+  const router = useRouter();
+  const handleLogout = () => {
+    logout();
+    userLoading(true);
+
+    if (protectedRoutes.some((route) => pathname.match(route))) {
+      router.push("/");
+    }
+  };
 
   return (
     <NextUINavbar
-      className="bg-gray-200 dark:bg-gray-600"
+      className="z-[999] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-900 dark:via-slate-900 dark:to-slate-950"
       maxWidth="xl"
       position="sticky"
     >
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
+            <Logo className="dark:fill-slate-300 fill-indigo-950 " />
             <p className="font-bold text-inherit">PawPedia</p>
           </NextLink>
         </NavbarBrand>
@@ -74,7 +72,17 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">
-          <ThemeSwitch />
+          <ThemeSwitch className="me-4" />
+          {user?.email ? (
+            <NavbarDropdown handleLogout={handleLogout} user={user} />
+          ) : (
+            <NextLink
+              className="bg-gradient-to-r from-indigo-500 dark:from-indigo-700 via-purple-500 dark:to-pink-500 to-purple-400 font-medium p-2 rounded-lg text-white hover:scale-105 transition-all duration-200 ease-in-out"
+              href="/login"
+            >
+              Login
+            </NextLink>
+          )}
         </NavbarItem>
       </NavbarContent>
 
