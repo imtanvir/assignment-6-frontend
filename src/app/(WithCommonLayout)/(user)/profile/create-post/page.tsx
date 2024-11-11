@@ -64,14 +64,7 @@ const CreatePost = () => {
 
     formData.append("data", JSON.stringify(postData));
     formData.append("file", imageFiles[0]);
-    console.log(
-      { formData: formData.get("data") },
-      { a: formData.get("itemImages") },
-      { data }
-    );
-    formData.forEach((value, key) => {
-      console.log(key, value);
-    });
+
     createPost(formData);
   };
   const method = useForm();

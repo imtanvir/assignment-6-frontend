@@ -11,7 +11,6 @@ export const registerUser = async (userData: FieldValues) => {
     const { data } = await axiosInstance.post("/auth/signup", {
       data: JSON.stringify(userData),
     });
-    // console.log({ res: res.data });
 
     return data;
   } catch (error: any) {
@@ -22,7 +21,6 @@ export const registerUser = async (userData: FieldValues) => {
 export const loginUser = async (userData: FieldValues) => {
   try {
     const { data } = await axiosInstance.post("/auth/signin", userData);
-    // console.log({ data });
 
     if (data?.success) {
       cookies().set("accessToken", data?.data?.accessToken);
@@ -72,8 +70,6 @@ export const getUserPosts = async () => {
     const { data } = await axiosInstance.get(
       `/post/user-posts/${decodedToken?._id}`
     );
-
-    console.log({ data });
 
     return data;
   }

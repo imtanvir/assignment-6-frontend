@@ -22,7 +22,7 @@ const FXInput = ({
   type = "text",
   label,
   name,
-  value,
+  value = "",
   className = "",
   placeholder,
 }: IInput) => {
@@ -35,8 +35,6 @@ const FXInput = ({
     setInputValue(e.target.value);
   };
 
-  console.log({ errors });
-
   return (
     <Input
       {...register(name)}
@@ -48,7 +46,7 @@ const FXInput = ({
       required={required}
       size={size}
       type={type}
-      // value={inputValue}
+      value={inputValue}
       variant={variant}
       onChange={(e) => {
         handleChange(e);

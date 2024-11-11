@@ -7,6 +7,7 @@ import Container from "../../../UI/Container";
 import PostCard from "@/src/components/UI/postCard";
 import { getPosts } from "@/src/services/Posts";
 import { IPost } from "@/src/types";
+import { delay } from "@/src/utils/delay";
 
 const productPerPage = 5;
 
@@ -21,6 +22,7 @@ const FeedPost = () => {
   const fetchMoreData = useCallback(async () => {
     if (loading) return; // Avoid duplicate calls
     setLoading(true);
+    await delay(1500);
 
     const { data: posts } = await getPosts(
       `limit=${productPerPage}&skip=${page * productPerPage}`
@@ -62,14 +64,10 @@ const FeedPost = () => {
           </div>
         ))}
         {hasMore && (
-          <div
-            ref={loaderRef}
-            className="flex items-center justify-center gap-2"
-          >
+          <div ref={loaderRef} className="flex items-center justify-center">
             {loading ? (
-              <div className="flex items-center gap-2 mb-4">
-                <span>Loading...</span>
-                <Spinner size="md" />
+              <div className="flex items-center mb-4">
+                <Spinner size="lg" />
               </div>
             ) : null}
           </div>

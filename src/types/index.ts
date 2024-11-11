@@ -58,7 +58,7 @@ export interface IUser {
   role: TRole;
   phone: string;
   address: string;
-  followers: number;
-  following: number;
+  followers: [string];
+  following: [string];
   image: IImage[];
 }

@@ -10,6 +10,7 @@ import {
   ModalHeader,
 } from "@nextui-org/react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 import FXForm from "../form/FXForm";
 import FXInput from "../form/FXInput";
@@ -17,10 +18,13 @@ import FXInput from "../form/FXInput";
 import Styles from "./Post.module.css";
 import PostCommentCard from "./postCommentCard";
 
+import { useUser } from "@/src/context/user.provider";
+import { useCommentOnPost } from "@/src/hooks/post.hook";
 import { Comment, User } from "@/src/types";
 
 export default function PostActionModal({
   isOpen,
+  postId,
   onOpenChange,
   user,
   post,
@@ -28,12 +32,43 @@ export default function PostActionModal({
   image,
 }: {
   isOpen: boolean;
+  postId: string;
   onOpenChange: (isOpen: boolean) => void;
   user: User;
   post: string;
   comments: Comment[];
   image: string;
 }) {
+  const { user: currentUser } = useUser();
+  const [postComments, setPostComments] = useState<Comment[] | []>(comments);
+  const {
+    mutate: commentOnPost,
+    data,
+    isPending,
+    isSuccess,
+  } = useCommentOnPost();
+
+  const handleCommentSubmit = (comment: string) => {
+    if (currentUser?.role === "user" && currentUser?.email) {
+      const data = { userId: currentUser?._id, comment: { comment }, postId };
+
+      commentOnPost(data);
+    }
+  };
+
+  const [lastComments, setLastComments] = useState<Comment | null>(null);
+
+  useEffect(() => {
+    if (data?.success && data?.data) {
+      const lastComment = data?.data?.allComments?.comments[
+        data?.data?.allComments?.comments.length - 1
+      ] as Comment;
+
+      setPostComments((prev) => [...prev, lastComment]);
+      setLastComments(lastComment);
+    }
+  }, [data]);
+
   return (
     <>
       <Modal
@@ -70,27 +105,56 @@ export default function PostActionModal({
                   <Divider className="my-4" />
                   <p>Comments</p>
                   <div className="py-5">
-                    {comments.map((comment) => (
+                    {/* {comments.map((comment) => (
                       <PostCommentCard
                         key={comment._id}
                         comment={comment?.comment}
                         imageUrl={comment?.author?.image[0]?.url}
                         userName={comment?.author?.name}
                       />
+                    ))} */}
+
+                    {postComments?.map((comment) => (
+                      <PostCommentCard
+                        key={comment._id}
+                        authorId={comment?.author?._id}
+                        comment={comment?.comment}
+                        commentId={comment?._id}
+                        imageUrl={
+                          comment?.author?.image[0]?.url
+                            ? comment?.author?.image[0]?.url
+                            : ""
+                        }
+                        postId={postId}
+                        setPostComments={setPostComments}
+                        user={currentUser as User}
+                        userName={comment?.author?.name}
+                      />
                     ))}
+                    {/* {lastComments?.author ? (
+                      <PostCommentCard
+                        comment={lastComments.comment}
+                        imageUrl={
+                          lastComments?.author?.image?.[0]?.url
+                            ? lastComments?.author?.image?.[0]?.url
+                            : ""
+                        }
+                        userName={lastComments.author.name}
+                      />
+                    ) : null} */}
                   </div>
                 </section>
               </ModalBody>
               <ModalFooter className="block">
                 <Divider className="my-2" />
                 <div>
-                  <FXForm onSubmit={() => {}}>
+                  <FXForm onSubmit={handleCommentSubmit}>
                     <div className="flex gap-4 items-center">
                       <Avatar
                         isBordered
                         radius="full"
                         size="sm"
-                        src={user?.image[0]?.url ? user?.image[0]?.url : ""}
+                        src={user?.image?.[0]?.url || ""}
                       />
                       <FXInput
                         className="w-full"
@@ -105,6 +169,7 @@ export default function PostActionModal({
                       <Button
                         isIconOnly
                         className=""
+                        disabled={isPending === true && isSuccess === false}
                         size="sm"
                         title="Send"
                         type="submit"

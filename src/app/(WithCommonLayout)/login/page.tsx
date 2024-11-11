@@ -17,8 +17,6 @@ const Login = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const redirect = searchParams.get("redirect");
-
-  console.log(redirect);
   const { mutate: handleLoginUser, isPending, isSuccess } = useUserLogin();
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     handleLoginUser(data);

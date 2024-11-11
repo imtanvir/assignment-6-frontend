@@ -6,21 +6,40 @@ import {
   CardBody,
   CardFooter,
   CardHeader,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import { useState } from "react";
 
 import Styles from "./Post.module.css";
 import PostActionModal from "./postActionModal";
 
+import { useUser } from "@/src/context/user.provider";
+import { useVoteOnPost } from "@/src/hooks/post.hook";
 import { IPost } from "@/src/types";
+export type IVote = {
+  userId: string;
+  postId: string;
+  action: string;
+};
 
 const PostCard = ({ singlePost }: { singlePost: IPost }) => {
-  const [isFollowed, setIsFollowed] = React.useState(false);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [backdrop, setBackdrop] = useState("opaque");
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { user: currentUser } = useUser();
   const {
+    mutate: voteOnPost,
+    isPending: voteOnPostPending,
+    isSuccess: voteOnPostSuccess,
+  } = useVoteOnPost();
+  const {
+    _id,
     user,
     premium,
     image,
@@ -31,6 +50,64 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
     comments,
     votes,
   } = singlePost;
+  const vote = votes.find((vote) => vote.userId === currentUser?._id);
+
+  const following = currentUser?.following;
+
+  const isFollowing = following?.includes(user?._id);
+
+  const [isFollowed, setIsFollowed] = useState(false);
+  const [isUpvoted, setIsUpvoted] = useState(vote?.voteType === "upvote");
+  const [isDownvoted, setIsDownvoted] = useState(vote?.voteType === "downvote");
+
+  const [upVoteCount, setUpVoteCount] = useState(upvote);
+  const [downVoteCount, setDownVoteCount] = useState(downvote);
+  const handleVote = (action: string) => {
+    const data: IVote = {
+      postId: singlePost._id,
+      userId: currentUser?._id as string,
+      action: "",
+    };
+
+    if (action === "upvote" && isUpvoted === false) {
+      data["action"] = "upvote";
+      setIsUpvoted(true);
+      setIsDownvoted(false);
+      setUpVoteCount(upVoteCount + 1);
+      setDownVoteCount(downVoteCount !== 0 ? downVoteCount - 1 : downVoteCount);
+    }
+    if (action === "downvote" && isDownvoted === false) {
+      data["action"] = "downvote";
+      setIsUpvoted(false);
+      setIsDownvoted(true);
+      setUpVoteCount(upVoteCount !== 0 ? upVoteCount - 1 : upVoteCount);
+      setDownVoteCount(downVoteCount + 1);
+    }
+
+    if (action === "upvote" && isUpvoted === true) {
+      data["action"] = "upvote";
+      setIsUpvoted(false);
+      setUpVoteCount(upVoteCount !== 0 ? upVoteCount - 1 : upVoteCount);
+    }
+
+    if (action === "downvote" && isDownvoted === true) {
+      data["action"] = "downvote";
+      setIsDownvoted(false);
+      setDownVoteCount(downVoteCount !== 0 ? downVoteCount - 1 : downVoteCount);
+    }
+
+    voteOnPost(data);
+  };
+
+  const handleFollowing = () => {
+    setIsFollowed(!isFollowed);
+  };
+  const handleOpen = (backdrop: string) => {
+    if (currentUser?.role !== "user" && !currentUser?.email) {
+      setBackdrop(backdrop);
+      onOpen();
+    }
+  };
 
   return (
     <section className="py-5">
@@ -61,7 +138,7 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
                   radius="full"
                   size="sm"
                   variant={isFollowed ? "bordered" : "solid"}
-                  onPress={() => setIsFollowed(!isFollowed)}
+                  onPress={() => handleFollowing()}
                 >
                   {isFollowed ? "Unfollow" : "Follow"}
                 </Button>
@@ -126,13 +203,18 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
             <Button
               isIconOnly
               className="flex items-center space-x-1"
+              disabled={
+                voteOnPostPending ||
+                (currentUser?.role !== "user" && !currentUser?.email)
+              }
               size="sm"
               title="Upvote"
-              // onClick={() => setUpvotes(upvotes + 1)}
+              onClick={() => handleVote("upvote")}
+              onPress={() => handleOpen("blur")}
             >
               <svg
                 className="size-6"
-                fill="none"
+                fill={isUpvoted ? "blue" : "none"}
                 stroke="currentColor"
                 strokeWidth="1.5"
                 viewBox="0 0 24 24"
@@ -148,18 +230,23 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
               <span className="sr-only">Upvote</span>
             </Button>
             <div className="flex space-x-2">
-              <span aria-live="polite">{upvote}</span>
+              <span aria-live="polite">{upVoteCount}</span>
             </div>
             <Button
               isIconOnly
               className="flex items-center space-x-1"
+              disabled={
+                voteOnPostPending ||
+                (currentUser?.role !== "user" && !currentUser?.email)
+              }
               size="sm"
               title="Downvote"
-              // onClick={() => setDownvotes(downvotes + 1)}
+              onClick={() => handleVote("downvote")}
+              onPress={() => handleOpen("blur")}
             >
               <svg
                 className="size-6"
-                fill="none"
+                fill={isDownvoted ? "blue" : "none"}
                 stroke="currentColor"
                 strokeWidth="1.5"
                 viewBox="0 0 24 24"
@@ -175,7 +262,7 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
               <span className="sr-only">Downvote</span>
             </Button>
             <div className="flex space-x-2">
-              <span aria-live="polite">{downvote}</span>
+              <span aria-live="polite">{downVoteCount}</span>
             </div>
 
             <Button
@@ -183,7 +270,10 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
               className="flex items-center space-x-1"
               size="sm"
               title="Comment"
-              onPress={onOpen}
+              onPress={() => {
+                handleOpen("blur");
+                currentUser?.role === "user" && onOpen();
+              }}
             >
               <svg
                 className="size-6"
@@ -202,8 +292,13 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
               <PostActionModal
                 comments={comments}
                 image={image[0]?.url}
-                isOpen={isOpen}
+                isOpen={
+                  currentUser?.role !== "user" && !currentUser?.email
+                    ? false
+                    : isOpen
+                }
                 post={post}
+                postId={_id}
                 user={user}
                 onOpenChange={onOpenChange}
               />
@@ -211,6 +306,28 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
           </div>
         </CardFooter>
       </Card>
+      <Modal
+        backdrop={backdrop as "opaque" | "blur"}
+        isOpen={currentUser?.role !== "user" && !currentUser?.email && isOpen}
+        onClose={onClose}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <h3 className="text-center pt-3 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
+                  Please Sign In to action on this post!
+                </h3>
+                <Button className="mt-4" color="primary">
+                  <Link href="/login">Sign In</Link>
+                </Button>
+              </ModalHeader>
+              <ModalBody />
+              <ModalFooter />
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </section>
   );
 };
