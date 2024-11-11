@@ -13,19 +13,19 @@ const productPerPage = 5;
 
 const FeedPost = () => {
   const [products, setProducts] = useState<IPost[]>([]);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
   const fetchMoreData = useCallback(async () => {
-    if (loading) return; // Avoid duplicate calls
+    if (loading || !hasMore) return;
     setLoading(true);
     await delay(1500);
 
     const { data: posts } = await getPosts(
-      `limit=${productPerPage}&skip=${page * productPerPage}`
+      `limit=${productPerPage}&skip=${(page - 1) * productPerPage}`
     );
 
     if (posts.length === 0) {
@@ -35,7 +35,7 @@ const FeedPost = () => {
       setPage((prevPage) => prevPage + 1);
     }
     setLoading(false);
-  }, [page, loading]);
+  }, [page, loading, hasMore]);
 
   useEffect(() => {
     const onIntersect = (entries: IntersectionObserverEntry[]) => {

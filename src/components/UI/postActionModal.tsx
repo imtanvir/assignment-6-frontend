@@ -48,11 +48,15 @@ export default function PostActionModal({
     isSuccess,
   } = useCommentOnPost();
 
-  const handleCommentSubmit = (comment: string) => {
+  const handleCommentSubmit = (data: { comment: string }) => {
     if (currentUser?.role === "user" && currentUser?.email) {
-      const data = { userId: currentUser?._id, comment: { comment }, postId };
+      const commentData = {
+        userId: currentUser?._id,
+        comment: data?.comment,
+        postId,
+      };
 
-      commentOnPost(data);
+      commentOnPost(commentData);
     }
   };
 
@@ -131,6 +135,12 @@ export default function PostActionModal({
                         userName={comment?.author?.name}
                       />
                     ))}
+
+                    {postComments?.length === 0 && (
+                      <p className="text-center my-5">
+                        No comments on this post
+                      </p>
+                    )}
                     {/* {lastComments?.author ? (
                       <PostCommentCard
                         comment={lastComments.comment}

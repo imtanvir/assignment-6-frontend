@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   commentOnPost,
   createPost,
+  deleteComment,
   editComment,
   voteOnPost,
 } from "../services/Posts";
@@ -32,7 +33,7 @@ export const useCommentOnPost = () => {
   return useMutation<
     any,
     Error,
-    { userId: string; comment: { comment: string }; postId: string }
+    { userId: string; comment: string; postId: string }
   >({
     mutationKey: ["COMMENT_ON_POST"],
     mutationFn: async ({
@@ -41,9 +42,9 @@ export const useCommentOnPost = () => {
       postId,
     }: {
       userId: string;
-      comment: { comment: string };
+      comment: string;
       postId: string;
-    }) => await commentOnPost(userId, comment.comment, postId),
+    }) => await commentOnPost(userId, comment, postId),
   });
 };
 
@@ -63,5 +64,24 @@ export const useEditComment = () => {
       comment: string;
       postId: string;
     }) => await editComment(commentId, comment, postId),
+  });
+};
+
+export const useDeleteComment = () => {
+  return useMutation<
+    any,
+    Error,
+    { commentId: string; userId: string; postId: string }
+  >({
+    mutationKey: ["DELETE_COMMENT"],
+    mutationFn: async ({
+      commentId,
+      userId,
+      postId,
+    }: {
+      commentId: string;
+      userId: string;
+      postId: string;
+    }) => await deleteComment(commentId, userId, postId),
   });
 };

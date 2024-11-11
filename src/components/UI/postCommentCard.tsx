@@ -13,7 +13,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import FXForm from "../form/FXForm";
 import FXInput from "../form/FXInput";
 
-import { useEditComment } from "@/src/hooks/post.hook";
+import { useDeleteComment, useEditComment } from "@/src/hooks/post.hook";
 import { Comment, User } from "@/src/types";
 
 const PostCommentCard = ({
@@ -43,6 +43,14 @@ const PostCommentCard = ({
     isSuccess: isEditSuccess,
     data: editCommentUpdateData,
   } = useEditComment();
+
+  const {
+    mutate: deleteCommentHandler,
+    isPending: isDeletePending,
+    isSuccess: isDeleteSuccess,
+    data: deleteCommentUpdateData,
+  } = useDeleteComment();
+
   const handleEditedComment = (data: { comment: string }) => {
     if (data?.comment) {
       setCommentValue(data?.comment);
@@ -54,6 +62,14 @@ const PostCommentCard = ({
     }
   };
 
+  const handleDeleteComment = () => {
+    deleteCommentHandler({
+      commentId: commentId,
+      userId: user?._id,
+      postId: postId,
+    });
+  };
+
   useEffect(() => {
     if (isEditSuccess && editCommentUpdateData?.data?.comments) {
       setPostComments((prev) =>
@@ -63,7 +79,18 @@ const PostCommentCard = ({
       );
       setEditComment(false);
     }
-  }, [isEditSuccess, editCommentUpdateData, commentId, commentValue]);
+
+    if (isDeleteSuccess && deleteCommentUpdateData?.data?.comments) {
+      setPostComments((prev) => prev.filter((c) => c._id !== commentId));
+    }
+  }, [
+    isEditSuccess,
+    editCommentUpdateData,
+    commentId,
+    commentValue,
+    isDeleteSuccess,
+    deleteCommentUpdateData,
+  ]);
 
   return (
     <>
@@ -97,7 +124,19 @@ const PostCommentCard = ({
                   <DropdownItem key="edit" onClick={() => setEditComment(true)}>
                     Edit
                   </DropdownItem>
-                  <DropdownItem key="delete">Delete</DropdownItem>
+                  <DropdownItem key="delete">
+                    <Button
+                      className="bg-transparent w-full h-full p-0 text-start rounded"
+                      disabled={isDeletePending && !isDeleteSuccess}
+                      size="md"
+                      variant="light"
+                      onClick={handleDeleteComment}
+                    >
+                      {isDeletePending && !isDeleteSuccess
+                        ? "Deleting..."
+                        : "Delete"}
+                    </Button>
+                  </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
             </div>

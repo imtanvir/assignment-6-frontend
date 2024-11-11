@@ -57,7 +57,7 @@ export const commentOnPost = async (
       `/post/comment-on-post/${postId}`,
       {
         userId: userId,
-        comment: comment.comment,
+        comment: comment,
       }
     );
 
@@ -74,7 +74,7 @@ export const editComment = async (
 ) => {
   try {
     const { data } = await axiosInstance.put(
-      `post/update-comment-on-post/${postId}`,
+      `/post/update-comment-on-post/${postId}`,
       {
         comment: comment,
         commentId: commentId,
@@ -84,5 +84,27 @@ export const editComment = async (
     return data;
   } catch (error) {
     throw new Error("Comment submission failed!");
+  }
+};
+
+export const deleteComment = async (
+  commentId: string,
+  userId: string,
+  postId: string
+) => {
+  try {
+    const { data } = await axiosInstance.delete(
+      `/post/delete-comment-on-post/${postId}`,
+      {
+        data: {
+          commentId: commentId,
+          userId: userId,
+        },
+      }
+    );
+
+    return data;
+  } catch (error) {
+    throw new Error("Comment deletion failed!");
   }
 };

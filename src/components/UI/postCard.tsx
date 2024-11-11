@@ -133,7 +133,7 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
                     isFollowed
                       ? "bg-transparent text-foreground border-default-200"
                       : ""
-                  }`}
+                  } ${currentUser?._id === user?._id ? "hidden" : ""}`}
                   color="primary"
                   radius="full"
                   size="sm"

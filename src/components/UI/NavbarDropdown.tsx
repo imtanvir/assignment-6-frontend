@@ -28,12 +28,23 @@ const NavbarDropdown = ({
   const handleNavigation = (pathname: string) => {
     router.push(pathname);
   };
+  const getName = (name: string) => {
+    const match = name.match(/^(\w)\w*\s*(\w)?/i);
+
+    return match ? (match[1] + (match[2] || "")).toUpperCase() : "";
+  };
+
+  const userName = getName(user?.name);
 
   return (
     <>
       <Dropdown>
         <DropdownTrigger>
-          <Avatar className="cursor-pointer" name="Jhon" />
+          <Avatar
+            className="cursor-pointer"
+            name={userName}
+            src={user?.image[0]?.url ? user?.image[0]?.url : ""}
+          />
         </DropdownTrigger>
         <DropdownMenu aria-label="Static Actions" className="box-content p-4">
           {user?.role === "user" ? (
