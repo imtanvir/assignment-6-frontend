@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { getCurrentUser } from "./services/AuthService";
-const AuthRoute = ["/login", "registration"];
+const AuthRoute = ["/login", "/register"];
 
 type Role = keyof typeof roleBasedRoute;
 
 const roleBasedRoute = {
-  user: [/^\/profile/],
+  user: [/^\/profile/, /^\/payment/],
   admin: [/^\/admin/],
 };
 
@@ -40,6 +40,8 @@ export const config = {
     "/admin",
     "/admin/:page*",
     "/profile",
+    "/payment/",
+    "/payment/:page*",
     "/profile/:page*",
     "/login",
     "/register",

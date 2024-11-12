@@ -13,6 +13,7 @@ export interface IInput {
   value?: string;
   className?: string;
   placeholder?: string;
+  disable?: boolean;
 }
 
 const FXInput = ({
@@ -25,6 +26,7 @@ const FXInput = ({
   value = "",
   className = "",
   placeholder,
+  disable = false,
 }: IInput) => {
   const {
     register,
@@ -39,6 +41,7 @@ const FXInput = ({
     <Input
       {...register(name)}
       className={className}
+      disabled={disable}
       errorMessage={errors[name] ? (errors[name].message as string) : ""}
       isInvalid={!!errors[name]}
       label={label}

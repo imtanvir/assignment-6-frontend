@@ -15,21 +15,27 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Styles from "./Post.module.css";
 import PostActionModal from "./postActionModal";
 
 import { useUser } from "@/src/context/user.provider";
-import { useVoteOnPost } from "@/src/hooks/post.hook";
-import { IPost } from "@/src/types";
+import { useFollowToggler, useVoteOnPost } from "@/src/hooks/post.hook";
+import { IPost, IUser } from "@/src/types";
 export type IVote = {
   userId: string;
   postId: string;
   action: string;
 };
 
-const PostCard = ({ singlePost }: { singlePost: IPost }) => {
+const PostCard = ({
+  singlePost,
+  viewer,
+}: {
+  singlePost: IPost;
+  viewer?: IUser;
+}) => {
   const [backdrop, setBackdrop] = useState("opaque");
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { user: currentUser } = useUser();
@@ -38,6 +44,13 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
     isPending: voteOnPostPending,
     isSuccess: voteOnPostSuccess,
   } = useVoteOnPost();
+
+  const {
+    mutate: followToggler,
+    isPending: followTogglerPending,
+    isSuccess: followTogglerSuccess,
+  } = useFollowToggler();
+
   const {
     _id,
     user,
@@ -50,18 +63,24 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
     comments,
     votes,
   } = singlePost;
+
   const vote = votes.find((vote) => vote.userId === currentUser?._id);
-
-  const following = currentUser?.following;
-
-  const isFollowing = following?.includes(user?._id);
-
-  const [isFollowed, setIsFollowed] = useState(false);
   const [isUpvoted, setIsUpvoted] = useState(vote?.voteType === "upvote");
   const [isDownvoted, setIsDownvoted] = useState(vote?.voteType === "downvote");
 
   const [upVoteCount, setUpVoteCount] = useState(upvote);
   const [downVoteCount, setDownVoteCount] = useState(downvote);
+
+  const viewerFollowing = viewer?.following;
+
+  const isFollowing = viewerFollowing?.find((follower) => {
+    return follower._id === user?._id;
+  });
+
+  const [isFollowed, setIsFollowed] = useState(
+    isFollowing && isFollowing?.name && isFollowing?._id ? true : false
+  );
+
   const handleVote = (action: string) => {
     const data: IVote = {
       postId: singlePost._id,
@@ -99,8 +118,19 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
     voteOnPost(data);
   };
 
-  const handleFollowing = () => {
+  const handleFollowToggler = () => {
+    if (currentUser?.role !== "user" && !currentUser?.email) {
+      setBackdrop("blur");
+      setHidePremium(true);
+      onOpenChange();
+
+      return;
+    }
     setIsFollowed(!isFollowed);
+    followToggler({
+      followUser: user?._id,
+      actionUserId: viewer?._id as string,
+    });
   };
   const handleOpen = (backdrop: string) => {
     if (currentUser?.role !== "user" && !currentUser?.email) {
@@ -108,10 +138,23 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
       onOpen();
     }
   };
+  const [hidePremium, setHidePremium] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      // Update the state when the modal closes
+      setHidePremium(false);
+    }
+  }, [isOpen]);
+
+  const handlePremium = () => {
+    onOpenChange();
+    setHidePremium(true);
+  };
 
   return (
     <section className="py-5">
-      <Card className="">
+      <Card className="relative text-default-900  from-default-200 transition-all bg-gradient-to-l hover:bg-gradient-to-l">
         <CardHeader className="justify-between">
           <div className="flex gap-5">
             <Avatar
@@ -135,10 +178,14 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
                       : ""
                   } ${currentUser?._id === user?._id ? "hidden" : ""}`}
                   color="primary"
+                  disabled={
+                    (followTogglerPending && !followTogglerSuccess) ||
+                    !currentUser?.role
+                  }
                   radius="full"
                   size="sm"
                   variant={isFollowed ? "bordered" : "solid"}
-                  onPress={() => handleFollowing()}
+                  onPress={() => handleFollowToggler()}
                 >
                   {isFollowed ? "Unfollow" : "Follow"}
                 </Button>
@@ -202,7 +249,7 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
           <div className="flex space-x-2">
             <Button
               isIconOnly
-              className="flex items-center space-x-1"
+              className="flex items-center space-x-1 bg-transparent hover:bg-transparent disabled:bg-transparent"
               disabled={
                 voteOnPostPending ||
                 (currentUser?.role !== "user" && !currentUser?.email)
@@ -234,7 +281,7 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
             </div>
             <Button
               isIconOnly
-              className="flex items-center space-x-1"
+              className="flex items-center space-x-1 bg-transparent hover:bg-transparent disabled:bg-transparent"
               disabled={
                 voteOnPostPending ||
                 (currentUser?.role !== "user" && !currentUser?.email)
@@ -267,7 +314,7 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
 
             <Button
               isIconOnly
-              className="flex items-center space-x-1"
+              className="flex items-center space-x-1 bg-transparent hover:bg-transparent disabled:bg-transparent"
               size="sm"
               title="Comment"
               onPress={() => {
@@ -305,13 +352,31 @@ const PostCard = ({ singlePost }: { singlePost: IPost }) => {
             </Button>
           </div>
         </CardFooter>
+        <div
+          className={`${premium ? "" : "hidden"} ${currentUser?.role === user?._id ? "hidden" : ""} ${hidePremium ? "hidden" : "absolute"} bottom-0 w-full h-[90%] z-[90] text-default-900 flex flex-col justify-center items-center rounded-md from-default-100  opacity-95 via-default-50   p-2 transition-all bg-gradient-to-t  `}
+        >
+          <Button
+            className=" text-white font-medium"
+            color="warning"
+            disabled={currentUser?.role !== "user" && !currentUser?.email}
+            size="md"
+            onPress={() => handlePremium()}
+          >
+            {" "}
+            Premium
+          </Button>
+          <p className="text-base mt-5">
+            Purchase to access and view the post{" "}
+          </p>
+        </div>
       </Card>
       <Modal
-        backdrop={backdrop as "opaque" | "blur"}
+        backdrop={"blur"}
+        className="z-[999]"
         isOpen={currentUser?.role !== "user" && !currentUser?.email && isOpen}
         onClose={onClose}
       >
-        <ModalContent>
+        <ModalContent className="z-[999]" onClick={() => setHidePremium(true)}>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">

@@ -1,22 +1,26 @@
 "use client";
 import { Avatar } from "@nextui-org/avatar";
 import { Card, CardBody } from "@nextui-org/card";
+import { Divider } from "@nextui-org/react";
 import { Tab, Tabs } from "@nextui-org/tabs";
 import { useEffect, useState } from "react";
 
 import Container from "./Container";
 import PostCard from "./postCard";
 import PostLoadingSkeleton from "./postLoadingSkeleton";
+import UserFollowTable from "./UserFollowTable/UserFollowTabler";
 
 import { useUser } from "@/src/context/user.provider";
+import { useGetAllUser, useUserProfile } from "@/src/hooks/user.hooks";
 import { getUserPosts } from "@/src/services/AuthService";
-import { IPost } from "@/src/types";
+import { IPost, IUser } from "@/src/types";
 
 export default function UserProfile() {
   const { user } = useUser();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [userName, setUserName] = useState("");
+
+  const { data: userProfileData } = useUserProfile();
 
   useEffect(() => {
     if (user?.name) {
@@ -48,30 +52,46 @@ export default function UserProfile() {
     }
   };
 
+  const viewer =
+    user?.role === "user" && user?.email ? userProfileData?.data : {};
+
+  const { data: allUser } = useGetAllUser();
+
+  const currentUser = allUser?.data?.find(
+    (user: IUser) => user?.email === user?.email
+  );
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
         <Avatar
-          name={userName ? userName : user?.name?.split(" ")[0]}
+          name={currentUser?.name ? currentUser?.name?.split(" ")[0] : ""}
           size="lg"
-          src={user?.image[0]?.url ? user?.image[0]?.url : ""}
+          src={currentUser?.image[0]?.url ? currentUser?.image[0]?.url : ""}
         />
         <div className="flex-1 text-center md:text-left">
-          <h1 className="text-3xl font-bold">{user?.name}</h1>
-          <p className="mt-2 max-w-md">{user?.email}</p>
+          <h1 className="text-3xl font-bold">{currentUser?.name}</h1>
+          <p className="mt-2 max-w-md">{currentUser?.email}</p>
         </div>
         <div className="flex gap-8 text-center py-4">
           <div>
             <p className="text-base font-bold">
-              {(user?.followers && user?.followers.length) || 0}
+              {currentUser?.address
+                ? currentUser?.address.split(" ")[0] +
+                  " " +
+                  currentUser?.address.split(" ")[1]
+                : ""}
             </p>
-            <p className="text-muted-foreground text-sm">Followers</p>
           </div>
+          <Divider className="h-5" orientation="vertical" />
           <div>
             <p className="text-base font-bold">
-              {(user?.following && user?.following.length) || 0}
+              {currentUser?.role === "admin"
+                ? "Admin"
+                : currentUser?.role === "user"
+                  ? "User"
+                  : ""}
             </p>
-            <p className="text-muted-foreground text-sm">Following</p>
           </div>
         </div>
       </div>
@@ -93,8 +113,8 @@ export default function UserProfile() {
                     ))}
                     {posts.length === 0 && !loading && (
                       <div className="flex justify-center items-center mb-5">
-                        <p className="text-2xl font-light font-mono">
-                          You have no posts...
+                        <p className="md:text-2xl text-lg font-light font-mono">
+                          You have no post
                         </p>
                       </div>
                     )}
@@ -106,17 +126,24 @@ export default function UserProfile() {
           <Tab key="followers" title="Followers">
             <Card>
               <CardBody>
-                <h3>The people who follow you</h3>
+                <h1>The people who followed you</h1>
+                <UserFollowTable
+                  followers={userProfileData?.data?.followers as IUser[]}
+                  tableType="followers"
+                  viewer={viewer}
+                />
               </CardBody>
             </Card>
           </Tab>
           <Tab key="following" title="Following">
             <Card>
               <CardBody>
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-                dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur.
+                <h1>The people you have following</h1>
+                <UserFollowTable
+                  following={userProfileData?.data?.following as IUser[]}
+                  tableType="following"
+                  viewer={viewer}
+                />
               </CardBody>
             </Card>
           </Tab>

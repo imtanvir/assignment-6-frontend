@@ -6,15 +6,39 @@ import { FieldValues } from "react-hook-form";
 import axiosInstance from "@/src/lib/AxiosInstance";
 import { IUser } from "@/src/types";
 
-export const registerUser = async (userData: FieldValues) => {
+export const registerUser = async (formData: FieldValues) => {
   try {
-    const { data } = await axiosInstance.post("/auth/signup", {
-      data: JSON.stringify(userData),
+    const { data } = await axiosInstance.post("/auth/signup", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
 
     return data;
   } catch (error: any) {
-    throw new Error(error);
+    throw new Error("Failed user registration!");
+  }
+};
+
+export const editUser = async (formData: FieldValues) => {
+  const user = await getCurrentUser();
+
+  console.log({ lastData: formData, user });
+  try {
+    const { data } = await axiosInstance.put(
+      `/user/update/${user?._id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return data;
+  } catch (error: any) {
+    console.log({ error });
+    throw new Error("Failed user update!");
   }
 };
 
@@ -72,5 +96,16 @@ export const getUserPosts = async () => {
     );
 
     return data;
+  }
+};
+export const getAllUser = async () => {
+  const accessToken = cookies().get("accessToken")?.value;
+
+  if (accessToken) {
+    const { data } = await axiosInstance.get("/user/all");
+
+    return data;
+  } else {
+    return [];
   }
 };

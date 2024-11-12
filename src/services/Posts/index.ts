@@ -108,3 +108,60 @@ export const deleteComment = async (
     throw new Error("Comment deletion failed!");
   }
 };
+
+export const getSinglePost = async (postId: string) => {
+  try {
+    const { data } = await axiosInstance.get(`/post/single-post/${postId}`);
+
+    return data;
+  } catch (error) {
+    throw new Error("Comment deletion failed!");
+  }
+};
+
+export const searchPosts = async (searchTerm: string) => {
+  try {
+    const res = await axiosInstance.get(`/post/all-post?search=${searchTerm}`);
+
+    return res.data;
+  } catch (error) {
+    throw new Error("Something went wrong!");
+  }
+};
+
+export const singlePost = async (postId: string) => {
+  let fetchOptions = {};
+
+  fetchOptions = {
+    cache: "no-store",
+  };
+
+  const response = await fetch(
+    `${envConfig.baseApi}/post/single-post/${postId}`,
+    fetchOptions
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to retrieve post");
+  }
+
+  return response.json();
+};
+
+export const followToggler = async (
+  followUser: string,
+  actionUserId: string
+) => {
+  try {
+    const { data } = await axiosInstance.put(
+      `/user/follow-user/${followUser}`,
+      {
+        actionUserId: actionUserId,
+      }
+    );
+
+    return data;
+  } catch (error) {
+    throw new Error("Something went wrong!");
+  }
+};

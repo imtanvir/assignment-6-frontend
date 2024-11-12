@@ -9,6 +9,8 @@ export interface User {
   name: string;
   email: string;
   image: IImage[];
+  followers: IUser[];
+  following: IUser[];
 }
 
 export interface IImage {
@@ -27,6 +29,8 @@ export interface Author {
   _id: string;
   name: string;
   image: IImage[];
+  followers: IUser[];
+  following: IUser[];
 }
 
 export interface Vote {
@@ -58,7 +62,16 @@ export interface IUser {
   role: TRole;
   phone: string;
   address: string;
-  followers: [string];
-  following: [string];
+  followers: IUser[];
+  following: IUser[];
   image: IImage[];
+}
+
+export interface IPaymentHistory {
+  userId: string;
+  amount: number;
+  currency: string;
+  status: string;
+  date: string;
+  transactionId: string;
 }

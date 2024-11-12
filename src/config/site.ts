@@ -1,8 +1,9 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  name: "Next.js + NextUI",
-  description: "Make beautiful websites regardless of your design experience.",
+  name: "PawPedia",
+  description:
+    "This is a blog site for pet lovers where they can read pet stories, tips and advice from experts. Also, they can create a post and share their pet stories and tips with the world.",
   navItems: [
     {
       label: "Home",

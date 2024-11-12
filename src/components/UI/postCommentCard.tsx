@@ -126,7 +126,7 @@ const PostCommentCard = ({
                   </DropdownItem>
                   <DropdownItem key="delete">
                     <Button
-                      className="bg-transparent w-full h-full p-0 text-start rounded"
+                      className="bg-transparent w-full h-full p-0 text-start rounded flex justify-start"
                       disabled={isDeletePending && !isDeleteSuccess}
                       size="md"
                       variant="light"

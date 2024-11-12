@@ -6,6 +6,9 @@ import {
   createPost,
   deleteComment,
   editComment,
+  followToggler,
+  getSinglePost,
+  searchPosts,
   voteOnPost,
 } from "../services/Posts";
 
@@ -83,5 +86,32 @@ export const useDeleteComment = () => {
       userId: string;
       postId: string;
     }) => await deleteComment(commentId, userId, postId),
+  });
+};
+
+export const useGetSinglePost = () => {
+  return useMutation<any, Error, string>({
+    mutationKey: ["GET_SINGLE_POST"],
+    mutationFn: async (postId: string) => await getSinglePost(postId),
+  });
+};
+
+export const useSearchPosts = () => {
+  return useMutation({
+    mutationKey: ["SEARCH_POSTS"],
+    mutationFn: async (searchTerm: string) => await searchPosts(searchTerm),
+  });
+};
+
+export const useFollowToggler = () => {
+  return useMutation<any, Error, { followUser: string; actionUserId: string }>({
+    mutationKey: ["FOLLOW_TOGGLER"],
+    mutationFn: async ({
+      followUser,
+      actionUserId,
+    }: {
+      followUser: string;
+      actionUserId: string;
+    }) => await followToggler(followUser, actionUserId),
   });
 };

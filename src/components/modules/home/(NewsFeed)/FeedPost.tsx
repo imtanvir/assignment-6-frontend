@@ -1,10 +1,12 @@
 "use client";
-import { Spinner } from "@nextui-org/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import Container from "../../../UI/Container";
 
 import PostCard from "@/src/components/UI/postCard";
+import PostLoadingSkeleton from "@/src/components/UI/postLoadingSkeleton";
+import { useUser } from "@/src/context/user.provider";
+import { useUserProfile } from "@/src/hooks/user.hooks";
 import { getPosts } from "@/src/services/Posts";
 import { IPost } from "@/src/types";
 import { delay } from "@/src/utils/delay";
@@ -12,7 +14,8 @@ import { delay } from "@/src/utils/delay";
 const productPerPage = 5;
 
 const FeedPost = () => {
-  const [products, setProducts] = useState<IPost[]>([]);
+  const { user: currentUser } = useUser();
+  const [posts, setPosts] = useState<IPost[]>([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -31,7 +34,7 @@ const FeedPost = () => {
     if (posts.length === 0) {
       setHasMore(false);
     } else {
-      setProducts((prevProducts) => [...prevProducts, ...posts]);
+      setPosts((prevProducts) => [...prevProducts, ...posts]);
       setPage((prevPage) => prevPage + 1);
     }
     setLoading(false);
@@ -55,23 +58,34 @@ const FeedPost = () => {
     };
   }, [fetchMoreData, hasMore, loading]);
 
+  const { data: userProfileData } = useUserProfile();
+
+  const viewer =
+    currentUser?.role === "user" && currentUser?.email
+      ? userProfileData?.data
+      : {};
+
+  const itemts: number[] = [1, 2, 3];
+
   return (
     <Container>
       <section>
-        {products.map((post: IPost) => (
+        {posts.map((post: IPost) => (
           <div key={post._id}>
-            <PostCard singlePost={post} />
+            <PostCard singlePost={post} viewer={viewer} />
           </div>
         ))}
-        {hasMore && (
+        {hasMore && posts && (
           <div ref={loaderRef} className="flex items-center justify-center">
-            {loading ? (
+            {/* {loading ? (
               <div className="flex items-center mb-4">
                 <Spinner size="lg" />
               </div>
-            ) : null}
+            ) : null} */}
+            <PostLoadingSkeleton />
           </div>
         )}
+        {/* {posts && !posts && <PostLoadingSkeleton item={itemts} />} */}
       </section>
     </Container>
   );
