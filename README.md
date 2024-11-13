@@ -1,8 +1,15 @@
-# Next.js & NextUI Template
+# PawPedia - Pet Care, Tips and Advice Blogging site.
 
-This is a template for creating applications using Next.js 14 (app directory) and NextUI (v2).
+[Live](https://assignment-6-frontend-mauve.vercel.app)
 
-[Try it on CodeSandbox](https://githubbox.com/nextui-org/next-app-template)
+[Server](https://pet-care-backend-api.vercel.app)
+
+## User Credential to access the site:
+
+- [User credential]
+
+Email: jhon@due.com
+password: password123
 
 ## Technologies Used
 
@@ -11,42 +18,31 @@ This is a template for creating applications using Next.js 14 (app directory) an
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Tailwind Variants](https://tailwind-variants.org)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Framer Motion](https://www.framer.com/motion/)
-- [next-themes](https://github.com/pacocoursey/next-themes)
+- [Rich Text Editor]
 
 ## How to Use
 
-### Use the template with create-next-app
+### Clone the template and run
 
-To create a new project based on this template using `create-next-app`, run the following command:
+To start a new project based on this template, run the following command:
 
 ```bash
-npx create-next-app -e https://github.com/nextui-org/next-app-template
+yarn
 ```
 
 ### Install dependencies
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `yarn`:
 
 ```bash
-npm install
+yarn
 ```
 
 ### Run the development server
 
 ```bash
-npm run dev
+bun dev
 ```
-
-### Setup pnpm (optional)
-
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
-
-```bash
-public-hoist-pattern[]=*@nextui-org/*
-```
-
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
 
 ## License
 

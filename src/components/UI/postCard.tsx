@@ -15,6 +15,7 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Styles from "./Post.module.css";
@@ -39,6 +40,7 @@ const PostCard = ({
   const [backdrop, setBackdrop] = useState("opaque");
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { user: currentUser } = useUser();
+  const router = useRouter();
   const {
     mutate: voteOnPost,
     isPending: voteOnPostPending,
@@ -119,7 +121,10 @@ const PostCard = ({
   };
 
   const handleFollowToggler = () => {
-    if (currentUser?.role !== "user" && !currentUser?.email) {
+    if (
+      (currentUser?.role !== "user" && !currentUser?.email) ||
+      currentUser?.role === "admin"
+    ) {
       setBackdrop("blur");
       setHidePremium(true);
       onOpenChange();
@@ -133,7 +138,10 @@ const PostCard = ({
     });
   };
   const handleOpen = (backdrop: string) => {
-    if (currentUser?.role !== "user" && !currentUser?.email) {
+    if (
+      (currentUser?.role !== "user" && !currentUser?.email) ||
+      currentUser?.role === "admin"
+    ) {
       setBackdrop(backdrop);
       onOpen();
     }
@@ -148,8 +156,15 @@ const PostCard = ({
   }, [isOpen]);
 
   const handlePremium = () => {
-    onOpenChange();
-    setHidePremium(true);
+    if (
+      (currentUser?.role !== "user" && !currentUser?.email) ||
+      currentUser?.role === "admin"
+    ) {
+      onOpenChange();
+      setHidePremium(true);
+    } else {
+      router.push(`/payment/${_id}`);
+    }
   };
 
   return (
@@ -195,37 +210,44 @@ const PostCard = ({
               </h5>
             </div>
           </div>
-          <Button
-            isIconOnly
-            className={`hover:bg-transparent me-4 cursor-default ${premium !== true ? "hidden" : "block"}`}
-            size="sm"
-            title="Premium post"
-            variant={"light"}
-          >
-            <svg
-              fill="#ffbd2e"
-              stroke="#ffbd2e"
-              transform="rotate(0)"
-              viewBox="0 -5.47 56.254 56.254"
-              xmlns="http://www.w3.org/2000/svg"
+          <div className="flex items-center flex-row-reverse">
+            <span
+              className={`bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500 me-4 font-bold text-lg cursor-default ${premium !== true ? "hidden" : "block"}`}
             >
-              <g id="SVGRepo_bgCarrier" strokeWidth="0" />
-              <g
-                id="SVGRepo_tracerCarrier"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <g id="SVGRepo_iconCarrier">
-                {" "}
-                <path
-                  d="M494.211,354.161l1.174-1.366H482.552L469.8,367.5h12.94Zm-8.4,13.336H510.05l-6.589-7.664-5.528-6.429-8.354,9.713Zm-15.856,2.329,24.1,25.356L482.53,369.826Zm40.824,0h-2.1l-8.829,0H485.083l12.774,28.1.082.178,12.17-26.8Zm-8.94,25.322,24.057-25.32H513.337Zm24.215-27.65L513.3,352.8H500.478l12.642,14.7Z"
-                  data-name="diamond premium"
-                  id="diamond_premium"
-                  transform="translate(-469.802 -352.795)"
-                />{" "}
-              </g>
-            </svg>
-          </Button>
+              $10
+            </span>
+            <Button
+              isIconOnly
+              className={`hover:bg-transparent me-4 cursor-default ${premium !== true ? "hidden" : "block"}`}
+              size="sm"
+              title="Premium post"
+              variant={"light"}
+            >
+              <svg
+                fill="#ffbd2e"
+                stroke="#ffbd2e"
+                transform="rotate(0)"
+                viewBox="0 -5.47 56.254 56.254"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+                <g
+                  id="SVGRepo_tracerCarrier"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <g id="SVGRepo_iconCarrier">
+                  {" "}
+                  <path
+                    d="M494.211,354.161l1.174-1.366H482.552L469.8,367.5h12.94Zm-8.4,13.336H510.05l-6.589-7.664-5.528-6.429-8.354,9.713Zm-15.856,2.329,24.1,25.356L482.53,369.826Zm40.824,0h-2.1l-8.829,0H485.083l12.774,28.1.082.178,12.17-26.8Zm-8.94,25.322,24.057-25.32H513.337Zm24.215-27.65L513.3,352.8H500.478l12.642,14.7Z"
+                    data-name="diamond premium"
+                    id="diamond_premium"
+                    transform="translate(-469.802 -352.795)"
+                  />{" "}
+                </g>
+              </svg>
+            </Button>
+          </div>
         </CardHeader>
         <CardBody className="px-3 py-0 text-small text-default-600">
           <div className="p-5">
@@ -252,7 +274,8 @@ const PostCard = ({
               className="flex items-center space-x-1 bg-transparent hover:bg-transparent disabled:bg-transparent"
               disabled={
                 voteOnPostPending ||
-                (currentUser?.role !== "user" && !currentUser?.email)
+                (currentUser?.role !== "user" && !currentUser?.email) ||
+                currentUser?.role === "admin"
               }
               size="sm"
               title="Upvote"
@@ -284,7 +307,8 @@ const PostCard = ({
               className="flex items-center space-x-1 bg-transparent hover:bg-transparent disabled:bg-transparent"
               disabled={
                 voteOnPostPending ||
-                (currentUser?.role !== "user" && !currentUser?.email)
+                (currentUser?.role !== "user" && !currentUser?.email) ||
+                currentUser?.role === "admin"
               }
               size="sm"
               title="Downvote"
@@ -340,7 +364,8 @@ const PostCard = ({
                 comments={comments}
                 image={image[0]?.url}
                 isOpen={
-                  currentUser?.role !== "user" && !currentUser?.email
+                  (currentUser?.role !== "user" && !currentUser?.email) ||
+                  currentUser?.role === "admin"
                     ? false
                     : isOpen
                 }
@@ -353,12 +378,15 @@ const PostCard = ({
           </div>
         </CardFooter>
         <div
-          className={`${premium ? "" : "hidden"} ${currentUser?.role === user?._id ? "hidden" : ""} ${hidePremium ? "hidden" : "absolute"} bottom-0 w-full h-[90%] z-[90] text-default-900 flex flex-col justify-center items-center rounded-md from-default-100  opacity-95 via-default-50   p-2 transition-all bg-gradient-to-t  `}
+          className={`${premium ? "" : "hidden"} ${currentUser?.role === user?._id ? "hidden" : ""} ${hidePremium ? "hidden" : "absolute"} bottom-0 w-full h-[90%] text-default-900 flex flex-col justify-center items-center rounded-md from-default-100  opacity-95 via-default-50   p-2 transition-all bg-gradient-to-t  `}
         >
           <Button
             className=" text-white font-medium"
             color="warning"
-            disabled={currentUser?.role !== "user" && !currentUser?.email}
+            disabled={
+              (currentUser?.role !== "user" && !currentUser?.email) ||
+              currentUser?.role === "admin"
+            }
             size="md"
             onPress={() => handlePremium()}
           >
@@ -372,8 +400,13 @@ const PostCard = ({
       </Card>
       <Modal
         backdrop={"blur"}
-        className="z-[999]"
-        isOpen={currentUser?.role !== "user" && !currentUser?.email && isOpen}
+        className="z-[900]"
+        isOpen={
+          (currentUser?.role !== "user" && !currentUser?.email) ||
+          currentUser?.role === "admin"
+            ? isOpen
+            : false
+        }
         onClose={onClose}
       >
         <ModalContent className="z-[999]" onClick={() => setHidePremium(true)}>
@@ -381,11 +414,19 @@ const PostCard = ({
             <>
               <ModalHeader className="flex flex-col gap-1">
                 <h3 className="text-center pt-3 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
-                  Please Sign In to action on this post!
+                  {currentUser?.role !== "user" && currentUser?.role !== "admin"
+                    ? "Please Sign In to action on this post!"
+                    : currentUser?.role === "admin"
+                      ? "User only can action on post!"
+                      : ""}
                 </h3>
-                <Button className="mt-4" color="primary">
-                  <Link href="/login">Sign In</Link>
-                </Button>
+                {currentUser?.role === "admin" ? (
+                  <></>
+                ) : (
+                  <Button className="mt-4" color="primary">
+                    <Link href="/login">Sign In</Link>
+                  </Button>
+                )}
               </ModalHeader>
               <ModalBody />
               <ModalFooter />

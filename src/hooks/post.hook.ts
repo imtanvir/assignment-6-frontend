@@ -13,7 +13,7 @@ import {
 } from "../services/Posts";
 
 export const useCreatePost = () => {
-  return useMutation<any, Error, any>({
+  return useMutation<any, Error, FormData>({
     mutationKey: ["CREATE_POST"],
     mutationFn: async (postData) => await createPost(postData),
     onSuccess: () => {

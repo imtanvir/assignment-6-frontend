@@ -36,6 +36,8 @@ const NavbarDropdown = ({
 
   const userName = getName(user?.name);
 
+  console.log({ user });
+
   return (
     <>
       <Dropdown>

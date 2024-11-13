@@ -6,6 +6,7 @@ export const USER_ROUTES = [
 
 export const ADMIN_ROUTES = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/update-profile", label: "Update Profile" },
   { href: "/admin/content-management", label: "Content Management" },
   { href: "/admin/user-management", label: "Users Management" },
   { href: "/admin/payment-history", label: "Payments History" },
@@ -15,12 +16,13 @@ export const NavDropdown_USER = [{ href: "/profile", label: "Profile" }];
 
 export const NavDropdown_ADMIN = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/update-profile", label: "Update Profile" },
   { href: "/admin/content-management", label: "Content Management" },
   { href: "/admin/user-management", label: "Users Management" },
 ];
 
 export const CategoryOptions = [
-  { key: "tips", label: "Tips" },
+  { key: "tip", label: "Tips" },
   { key: "story", label: "Story" },
 ];
 export const PremiumPostOptions = [

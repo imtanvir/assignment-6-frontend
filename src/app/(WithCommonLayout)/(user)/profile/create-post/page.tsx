@@ -32,6 +32,13 @@ const CreatePost = () => {
   const [imagePreviews, setImagePreviews] = useState<string[] | []>([]);
   const { user } = useUser();
   const router = useRouter();
+
+  const {
+    mutate: createPost,
+    isPending: postCreatePending,
+    isSuccess: postCreateSuccess,
+  } = useCreatePost();
+
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files![0];
 
@@ -47,11 +54,11 @@ const CreatePost = () => {
       reader.readAsDataURL(file);
     }
   };
-  const {
-    mutate: createPost,
-    isPending: postCreatePending,
-    isSuccess: postCreateSuccess,
-  } = useCreatePost();
+
+  const method = useForm();
+
+  const { handleSubmit } = method;
+
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     const formData = new FormData();
     const postData = {
@@ -67,9 +74,6 @@ const CreatePost = () => {
 
     createPost(formData);
   };
-  const method = useForm();
-
-  const { handleSubmit } = method;
 
   if (!postCreatePending && postCreateSuccess) {
     router.push("/");

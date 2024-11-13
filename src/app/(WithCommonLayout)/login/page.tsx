@@ -1,6 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@nextui-org/button";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { FieldValues, SubmitHandler } from "react-hook-form";
@@ -68,6 +69,12 @@ const Login = () => {
               </Button>
             </div>
           </FXForm>
+          <div className=" flex justify-center items-center py-3 gap-2">
+            <p>Don&apos;t have an account?</p>
+            <Link className="text-blue-500" href={"/register"}>
+              Sign up
+            </Link>
+          </div>
         </div>
       </section>
     </>

@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidateTag } from "next/cache";
+
 import { IVote } from "@/src/components/UI/postCard";
 import envConfig from "@/src/config/envConfig";
 import axiosInstance from "@/src/lib/AxiosInstance";
@@ -9,10 +11,12 @@ export const getPosts = async (query?: string) => {
     next: {
       tags: ["posts"],
     },
+    caches: "no-store",
   };
-  const res = await fetch(`${envConfig.baseApi}/post/all-post?${query}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(
+    `${envConfig.baseApi}/post/all-post?${query}`,
+    option
+  );
 
   const posts = await res.json();
 
@@ -32,6 +36,7 @@ export const voteOnPost = async (voteData: IVote) => {
   }
 };
 export const createPost = async (formData: FormData): Promise<any> => {
+  console.log({ createData: formData });
   try {
     const { data } = await axiosInstance.post("/post/create-post", formData, {
       headers: {
@@ -39,10 +44,11 @@ export const createPost = async (formData: FormData): Promise<any> => {
       },
     });
 
-    // revalidateTag("posts");
+    revalidateTag("posts");
 
     return data;
   } catch (error) {
+    console.log({ errorBro: error });
     throw new Error("Post creation failed! Error occurred.");
   }
 };

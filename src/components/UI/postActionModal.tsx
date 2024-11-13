@@ -76,6 +76,7 @@ export default function PostActionModal({
   return (
     <>
       <Modal
+        className="z-[999]"
         isOpen={isOpen}
         scrollBehavior="inside"
         size={"5xl"}

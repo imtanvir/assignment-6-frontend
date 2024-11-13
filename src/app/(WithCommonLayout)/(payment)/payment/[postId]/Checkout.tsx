@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import Loading from "@/src/components/UI/Loading";
 import { useUser } from "@/src/context/user.provider";
 import { createPaymentClientSecret } from "@/src/services/Payment";
 import { IPost } from "@/src/types";
-import Loading from "@/src/components/UI/Loading";
 
 const Checkout = ({
   payAmount,

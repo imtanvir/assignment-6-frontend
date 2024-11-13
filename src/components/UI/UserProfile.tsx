@@ -65,30 +65,30 @@ export default function UserProfile() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
         <Avatar
-          name={currentUser?.name ? currentUser?.name?.split(" ")[0] : ""}
+          name={user?.name ? user?.name?.split(" ")[0] : ""}
           size="lg"
-          src={currentUser?.image[0]?.url ? currentUser?.image[0]?.url : ""}
+          src={user?.image[0]?.url ? user?.image[0]?.url : ""}
         />
         <div className="flex-1 text-center md:text-left">
-          <h1 className="text-3xl font-bold">{currentUser?.name}</h1>
-          <p className="mt-2 max-w-md">{currentUser?.email}</p>
+          <h1 className="text-3xl font-bold">{user?.name}</h1>
+          <p className="mt-2 max-w-md">{user?.email}</p>
         </div>
         <div className="flex gap-8 text-center py-4">
           <div>
             <p className="text-base font-bold">
-              {currentUser?.address
-                ? currentUser?.address.split(" ")[0] +
+              {user?.address
+                ? user?.address.split(" ")[0] +
                   " " +
-                  currentUser?.address.split(" ")[1]
+                  user?.address.split(" ")[1]
                 : ""}
             </p>
           </div>
           <Divider className="h-5" orientation="vertical" />
           <div>
             <p className="text-base font-bold">
-              {currentUser?.role === "admin"
+              {user?.role === "admin"
                 ? "Admin"
-                : currentUser?.role === "user"
+                : user?.role === "user"
                   ? "User"
                   : ""}
             </p>

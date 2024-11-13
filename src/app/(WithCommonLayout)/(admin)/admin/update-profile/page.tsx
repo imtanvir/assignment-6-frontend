@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@nextui-org/button";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import {
@@ -180,12 +179,6 @@ const EditProfile = () => {
               </div>
             </form>
           </FormProvider>
-          <div className=" flex justify-center items-center py-3 gap-2">
-            <p>Already have an account?</p>
-            <Link className="text-blue-500" href={"/login"}>
-              Login in
-            </Link>
-          </div>
         </div>
       </section>
     </>
