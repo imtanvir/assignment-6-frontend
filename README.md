@@ -11,6 +11,10 @@
 Email: jhon@due.com
 password: password123
 
+- [Admin credential]
+Email: tanvirparvej101@gmail.com
+password: petcare@admin321
+
 ## Technologies Used
 
 - [Next.js 14](https://nextjs.org/docs/getting-started)
