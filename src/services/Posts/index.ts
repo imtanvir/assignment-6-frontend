@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
+import { FieldValues } from "react-hook-form";
 
 import { IVote } from "@/src/components/UI/postCard";
 import envConfig from "@/src/config/envConfig";
@@ -35,7 +36,7 @@ export const voteOnPost = async (voteData: IVote) => {
     throw new Error("Vote submission failed!");
   }
 };
-export const createPost = async (formData: FormData): Promise<any> => {
+export const createPost = async (formData: FieldValues) => {
   console.log({ createData: formData });
   try {
     const { data } = await axiosInstance.post("/post/create-post", formData, {

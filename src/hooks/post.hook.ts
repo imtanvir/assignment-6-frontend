@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { FieldValues } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -13,14 +14,22 @@ import {
 } from "../services/Posts";
 
 export const useCreatePost = () => {
-  return useMutation<any, Error, FormData>({
+  return useMutation<any, Error, FieldValues>({
     mutationKey: ["CREATE_POST"],
     mutationFn: async (postData) => await createPost(postData),
     onSuccess: () => {
       toast.success("Post created and published!");
     },
     onError: (error) => {
-      toast.error(error?.message);
+      toast.error(error?.message, {
+        style: {
+          background: "#fecaca",
+          border: "1px solid #fecaca",
+        },
+        classNames: {
+          toast: "text-red-500",
+        },
+      });
     },
   });
 };

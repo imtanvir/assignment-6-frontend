@@ -77,7 +77,17 @@ const Checkout = ({
     if (error) {
       setProcessing(false);
       setErr(error.message ?? "An unexpected error occurred.");
-      toast.error("Something went wrong!", { id: toastId, duration: 2000 });
+      toast.error("Something went wrong!", {
+        id: toastId,
+        duration: 2000,
+        style: {
+          background: "#fecaca",
+          border: "1px solid #fecaca",
+        },
+        classNames: {
+          toast: "text-red-500",
+        },
+      });
     } else {
       setProcessing(true);
       setErr("");
@@ -96,7 +106,17 @@ const Checkout = ({
       });
 
     if (confirmError) {
-      toast.error(confirmError.message, { id: toastId, duration: 2000 });
+      toast.error(confirmError.message, {
+        id: toastId,
+        duration: 2000,
+        style: {
+          background: "#fecaca",
+          border: "1px solid #fecaca",
+        },
+        classNames: {
+          toast: "text-red-500",
+        },
+      });
     } else {
       if (paymentIntent.status === "succeeded") {
         // if (postDetails) {
@@ -108,7 +128,13 @@ const Checkout = ({
         toast.success("Your payment was successful!", {
           id: toastId,
           duration: 2000,
-          className: "bg-green-500 text-white border-green-400",
+          style: {
+            background: "#10b981",
+            border: "1px solid #10b981",
+          },
+          classNames: {
+            toast: "text-white",
+          },
         });
 
         // setTimeout(() => {

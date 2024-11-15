@@ -5,6 +5,8 @@ import Image from "next/image";
 import SignUp from "@/src/components/UI/SignUp";
 
 export default function About() {
+  // create a use state to store the user input
+
   return (
     <section className="py-32 bg-gradient-to-l from-blue-200 to-pink-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-8">
