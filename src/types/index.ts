@@ -52,6 +52,7 @@ export interface IPost {
   post: string;
   comments: Comment[];
   votes: Vote[];
+  accessedUsers: string[];
 }
 export type TRole = "user" | "admin";
 
@@ -75,3 +76,12 @@ export interface IPaymentHistory {
   date: string;
   transactionId: string;
 }
+
+export type TPayment = {
+  user: string;
+  post: string;
+  amount: number;
+  currency: string;
+  status: string;
+  transactionId: string;
+};

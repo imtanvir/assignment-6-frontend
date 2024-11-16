@@ -4,16 +4,18 @@ import { cookies } from "next/headers";
 
 import envConfig from "@/src/config/envConfig";
 import axiosInstance from "@/src/lib/AxiosInstance";
+import { TPayment } from "@/src/types";
 
-export const addPaymentHistory = async (amount: number) => {
+export const addPaymentHistory = async (paymentDetails: TPayment) => {
   try {
-    const { data } = await axiosInstance.post("/create-payment-intent/", {
-      amount: amount,
-    });
+    const { data } = await axiosInstance.post(
+      "/payment/add-payment-history",
+      paymentDetails
+    );
 
     return data;
   } catch (error) {
-    throw new Error("Payment failed!");
+    throw new Error("Payment history creation failed!");
   }
 };
 

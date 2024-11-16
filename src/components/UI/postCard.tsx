@@ -43,6 +43,9 @@ const PostCard = ({
   const [backdrop, setBackdrop] = useState("opaque");
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { user: currentUser } = useUser();
+  const isViewerHasAccess = singlePost?.accessedUsers?.includes(
+    currentUser?._id as string
+  );
   const router = useRouter();
   const {
     mutate: voteOnPost,
@@ -235,17 +238,20 @@ const PostCard = ({
             </div>
           </div>
           <div className="flex items-center flex-row-reverse">
-            <span
-              className={`bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500 me-4 font-bold text-lg cursor-default ${premium !== true ? "hidden" : "block"}`}
-            >
-              $10
-            </span>
+            {isViewerHasAccess === false && (
+              <span
+                className={`bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500 me-4 font-bold text-lg cursor-default ${premium !== true ? "hidden" : "block"}`}
+              >
+                $10
+              </span>
+            )}
+
             <Button
               isIconOnly
-              className={`hover:bg-transparent me-4 cursor-default ${premium !== true ? "hidden" : "block"}`}
+              className={`hover:bg-transparent bg-transparent me-4 cursor-default ${premium !== true ? "hidden" : "block"}`}
               size="sm"
               title="Premium post"
-              variant={"light"}
+              // variant={"light"}
             >
               <svg
                 fill="#ffbd2e"
@@ -415,8 +421,7 @@ const PostCard = ({
           </div>
         </CardFooter>
         <div
-          className={`${premium ? "absolute" : "hidden"} ${viewer?._id === user?._id ? "hidden" : ""} ${hidePremium ? "hidden" : "absolute"} bottom-0 w-full h-[90%] text-default-900 flex flex-col justify-center items-center rounded-md from-default-100  opacity-95 via-default-50   p-2 transition-all bg-gradient-to-t  `}
-          // className=""
+          className={`${premium && isViewerHasAccess === false ? "absolute" : "hidden"} ${viewer?._id === user?._id ? "hidden" : ""} ${hidePremium ? "hidden" : "absolute"} bottom-0 w-full h-[90%] text-default-900 flex flex-col justify-center items-center rounded-md from-default-100  opacity-95 via-default-50   p-2 transition-all bg-gradient-to-t  `}
         >
           <Button
             className="bg-gradient-to-r from-indigo-500 dark:from-indigo-700 via-purple-500 dark:to-pink-500 to-purple-400 font-medium p-2 rounded-lg text-white hover:scale-105 transition-all duration-200 ease-in-out"

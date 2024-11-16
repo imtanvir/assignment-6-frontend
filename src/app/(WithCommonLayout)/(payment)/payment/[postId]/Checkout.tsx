@@ -8,15 +8,17 @@ import { toast } from "sonner";
 
 import Loading from "@/src/components/UI/Loading";
 import { useUser } from "@/src/context/user.provider";
+import { useAddPaymentHistory } from "@/src/hooks/payment.hook";
 import { createPaymentClientSecret } from "@/src/services/Payment";
 import { IPost } from "@/src/types";
 
 const Checkout = ({
   payAmount,
+  postId,
   userId,
-  postDetails,
 }: {
   payAmount?: number;
+  postId?: string;
   userId?: string;
   postDetails?: IPost;
 }) => {
@@ -30,7 +32,11 @@ const Checkout = ({
   const router = useRouter();
   const { user: currentUser } = useUser();
 
-  useEffect(() => {}, []);
+  const {
+    mutate: addPaymentHistory,
+    isPending: addPaymentHistoryLoading,
+    isSuccess: addPaymentHistorySuccess,
+  } = useAddPaymentHistory();
 
   useEffect(() => {
     const createClientSecret = async () => {
@@ -97,8 +103,7 @@ const Checkout = ({
         payment_method: {
           card: card,
           billing_details: {
-            // email: currentUser?.email || "anonymous",
-            email: "a@aada.com",
+            email: currentUser?.email || "anonymous@mail.com",
             name: currentUser?.name || "anonymous",
           },
         },
@@ -118,10 +123,17 @@ const Checkout = ({
       });
     } else {
       if (paymentIntent.status === "succeeded") {
-        // if (postDetails) {
-        //   const response = await addPaymentHistory(postDetails._id);
+        const paymentData = {
+          user: userId as string,
+          post: postId as string,
+          amount: payAmount as number,
+          transactionId: paymentIntent.id as string,
+          currency: paymentIntent.currency as string,
+          status: paymentIntent.status as string,
+        };
 
-        //   if (response?.success) {
+        addPaymentHistory(paymentData);
+
         setTransactionId(paymentIntent.id);
         setProcessing(false);
         toast.success("Your payment was successful!", {
@@ -136,12 +148,22 @@ const Checkout = ({
           },
         });
 
-        // setTimeout(() => {
-        //   //   setIsDialogOpen(false);
-        // //   router.push("/");
-        // }, 2000);
-        //   }
-        // }
+        setTimeout(() => {
+          router.push(`/single-post/${postId as string}`);
+        }, 1500);
+      } else {
+        setErr("Payment process failed!");
+        toast.error("Something went wrong!", {
+          id: toastId,
+          duration: 2000,
+          style: {
+            background: "#fecaca",
+            border: "1px solid #fecaca",
+          },
+          classNames: {
+            toast: "text-red-500",
+          },
+        });
       }
     }
   };
@@ -195,14 +217,14 @@ const Checkout = ({
                 ? "bg-green-700 hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 focus:ring-green-300"
                 : "bg-indigo-700 hover:bg-indigo-800 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 focus:ring-indigo-300"
           }  text-white  focus:ring-4 mt-2 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2 text-center `}
-          // disabled={
-          //   err.trim().length !== 0 ||
-          //   payAmount === 0 ||
-          //   !stripe ||
-          //   !clientSecret ||
-          //   processing ||
-          //   transactionId.length > 1
-          // }
+          disabled={
+            err.trim().length !== 0 ||
+            payAmount === 0 ||
+            !stripe ||
+            !clientSecret ||
+            processing ||
+            transactionId.length > 1
+          }
           // console.log({err, payAmount, stripe, clientSecret, })
           type="submit"
         >

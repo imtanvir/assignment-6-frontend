@@ -120,7 +120,7 @@ export const getSinglePost = async (postId: string) => {
 
     return data;
   } catch (error) {
-    throw new Error("Comment deletion failed!");
+    throw new Error("Single post retrieve failed!");
   }
 };
 
