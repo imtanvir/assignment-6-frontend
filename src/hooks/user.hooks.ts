@@ -16,3 +16,5 @@ export const useGetAllUser = () => {
     queryFn: async () => await getAllUser(),
   });
 };
+
+export const uProfile = () => {};

@@ -22,9 +22,6 @@ const EditProfile = () => {
     userProfileData?.data?.image[0]?.url as string,
   ]);
 
-  console.log({ userProfileData }, userProfileData?.data?.image[0]?.url);
-  // const searchParams = useSearchParams();
-  // const redirect = searchParams.get("redirect");
   const router = useRouter();
 
   const { mutate: editUser, isPending, isSuccess } = useUserEdit();
@@ -41,7 +38,6 @@ const EditProfile = () => {
 
     formData.append("data", JSON.stringify(authData));
     formData.append("file", imageFiles[0]);
-    console.log({ formData });
     editUser(formData);
   };
 

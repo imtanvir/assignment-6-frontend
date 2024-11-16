@@ -6,7 +6,7 @@ import Container from "../../../UI/Container";
 import PostCard from "@/src/components/UI/postCard";
 import PostLoadingSkeleton from "@/src/components/UI/postLoadingSkeleton";
 import { useUser } from "@/src/context/user.provider";
-import { useUserProfile } from "@/src/hooks/user.hooks";
+import { useGetAllUser, useUserProfile } from "@/src/hooks/user.hooks";
 import { getPosts } from "@/src/services/Posts";
 import { IPost } from "@/src/types";
 import { delay } from "@/src/utils/delay";
@@ -19,6 +19,7 @@ const FeedPost = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const { data: allUser } = useGetAllUser();
 
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
@@ -65,14 +66,16 @@ const FeedPost = () => {
       ? userProfileData?.data
       : {};
 
-  const itemts: number[] = [1, 2, 3];
-
   return (
     <Container>
       <section>
         {posts.map((post: IPost) => (
           <div key={post._id}>
-            <PostCard singlePost={post} viewer={viewer} />
+            <PostCard
+              allUser={allUser?.data}
+              singlePost={post}
+              viewer={viewer}
+            />
           </div>
         ))}
         {hasMore && posts && (

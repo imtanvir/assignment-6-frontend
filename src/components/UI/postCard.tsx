@@ -13,6 +13,7 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/react";
+import truncate from "html-truncate";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,9 +34,11 @@ export type IVote = {
 const PostCard = ({
   singlePost,
   viewer,
+  allUser,
 }: {
   singlePost: IPost;
   viewer?: IUser;
+  allUser?: IUser[];
 }) => {
   const [backdrop, setBackdrop] = useState("opaque");
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -69,10 +72,9 @@ const PostCard = ({
   const vote = votes.find((vote) => vote.userId === currentUser?._id);
   const [isUpvoted, setIsUpvoted] = useState(vote?.voteType === "upvote");
   const [isDownvoted, setIsDownvoted] = useState(vote?.voteType === "downvote");
-
   const [upVoteCount, setUpVoteCount] = useState(upvote);
   const [downVoteCount, setDownVoteCount] = useState(downvote);
-
+  const { setUserProfile } = useUser();
   const viewerFollowing = viewer?.following;
 
   const isFollowing = viewerFollowing?.find((follower) => {
@@ -136,6 +138,24 @@ const PostCard = ({
       followUser: user?._id,
       actionUserId: viewer?._id as string,
     });
+
+    const targetUser = allUser?.find(
+      (eachUser: IUser) => eachUser._id === user?._id
+    );
+
+    setUserProfile((prev) => {
+      if (prev?.following) {
+        return {
+          ...prev,
+          following: [...prev.following, targetUser! as IUser],
+        } as IUser;
+      } else {
+        return {
+          ...prev,
+          following: [targetUser! as IUser],
+        } as IUser;
+      }
+    });
   };
   const handleOpen = (backdrop: string) => {
     if (
@@ -147,6 +167,7 @@ const PostCard = ({
     }
   };
   const [hidePremium, setHidePremium] = useState(false);
+  const [seePostToggle, setSeePostToggle] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -166,6 +187,8 @@ const PostCard = ({
       router.push(`/payment/${_id}`);
     }
   };
+
+  const truncatedHtml = truncate(post, 40);
 
   return (
     <section className="py-5">
@@ -194,6 +217,7 @@ const PostCard = ({
                   } ${currentUser?._id === user?._id ? "hidden" : ""}`}
                   color="primary"
                   disabled={
+                    viewer?._id === user?._id ||
                     (followTogglerPending && !followTogglerSuccess) ||
                     !currentUser?.role
                   }
@@ -252,9 +276,22 @@ const PostCard = ({
         <CardBody className="px-3 py-0 text-small text-default-600">
           <div className="p-5">
             <div
-              dangerouslySetInnerHTML={{ __html: post }}
+              dangerouslySetInnerHTML={{
+                __html: seePostToggle ? post : truncatedHtml,
+              }}
               className={Styles.Output}
+              style={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
             />
+            <button
+              className="cursor-pointer text-blue-400"
+              onClick={() => setSeePostToggle(!seePostToggle)}
+            >
+              {seePostToggle ? "see less" : "see more"}
+            </button>
           </div>
 
           <div className="relative w-full md:h-[300px] h-[200px] overflow-hidden">
@@ -284,8 +321,8 @@ const PostCard = ({
             >
               <svg
                 className="size-6"
-                fill={isUpvoted ? "blue" : "none"}
-                stroke="currentColor"
+                fill={isUpvoted ? "#3B82F6" : "none"}
+                stroke={isUpvoted ? "#3B82F6" : "currentColor"}
                 strokeWidth="1.5"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -317,8 +354,8 @@ const PostCard = ({
             >
               <svg
                 className="size-6"
-                fill={isDownvoted ? "blue" : "none"}
-                stroke="currentColor"
+                fill={isDownvoted ? "#3B82F6" : "none"}
+                stroke={isDownvoted ? "#3B82F6" : "currentColor"}
                 strokeWidth="1.5"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -338,7 +375,7 @@ const PostCard = ({
 
             <Button
               isIconOnly
-              className="flex items-center space-x-1 bg-transparent hover:bg-transparent disabled:bg-transparent"
+              className="tanvir3 flex items-center space-x-1 bg-transparent hover:bg-transparent disabled:bg-transparent"
               size="sm"
               title="Comment"
               onPress={() => {
@@ -378,10 +415,11 @@ const PostCard = ({
           </div>
         </CardFooter>
         <div
-          className={`${premium ? "" : "hidden"} ${currentUser?.role === user?._id ? "hidden" : ""} ${hidePremium ? "hidden" : "absolute"} bottom-0 w-full h-[90%] text-default-900 flex flex-col justify-center items-center rounded-md from-default-100  opacity-95 via-default-50   p-2 transition-all bg-gradient-to-t  `}
+          className={`${premium ? "absolute" : "hidden"} ${viewer?._id === user?._id ? "hidden" : ""} ${hidePremium ? "hidden" : "absolute"} bottom-0 w-full h-[90%] text-default-900 flex flex-col justify-center items-center rounded-md from-default-100  opacity-95 via-default-50   p-2 transition-all bg-gradient-to-t  `}
+          // className=""
         >
           <Button
-            className=" text-white font-medium"
+            className="bg-gradient-to-r from-indigo-500 dark:from-indigo-700 via-purple-500 dark:to-pink-500 to-purple-400 font-medium p-2 rounded-lg text-white hover:scale-105 transition-all duration-200 ease-in-out"
             color="warning"
             disabled={
               (currentUser?.role !== "user" && !currentUser?.email) ||
@@ -393,7 +431,7 @@ const PostCard = ({
             {" "}
             Premium
           </Button>
-          <p className="text-base mt-5">
+          <p className="text-base mt-5 italic">
             Purchase to access and view the post{" "}
           </p>
         </div>

@@ -37,7 +37,6 @@ export const voteOnPost = async (voteData: IVote) => {
   }
 };
 export const createPost = async (formData: FieldValues) => {
-  console.log({ createData: formData });
   try {
     const { data } = await axiosInstance.post("/post/create-post", formData, {
       headers: {
@@ -49,7 +48,6 @@ export const createPost = async (formData: FieldValues) => {
 
     return data;
   } catch (error) {
-    console.log({ errorBro: error });
     throw new Error("Post creation failed! Error occurred.");
   }
 };

@@ -15,8 +15,6 @@ interface IProps {
 const SinglePost = async ({ params: { postId } }: IProps) => {
   const { data: post } = await singlePost(postId);
 
-  console.log({ post });
-
   return (
     <>
       <Container>

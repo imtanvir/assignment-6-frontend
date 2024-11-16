@@ -7,7 +7,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@nextui-org/dropdown";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Fragment } from "react";
 
 import { NavDropdown_ADMIN, NavDropdown_USER } from "./Sidevar/contstants";
@@ -25,6 +25,7 @@ const NavbarDropdown = ({
   handleLogout: () => void;
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const handleNavigation = (pathname: string) => {
     router.push(pathname);
   };
@@ -35,8 +36,6 @@ const NavbarDropdown = ({
   };
 
   const userName = getName(user?.name);
-
-  console.log({ user });
 
   return (
     <>
@@ -51,27 +50,35 @@ const NavbarDropdown = ({
         <DropdownMenu aria-label="Static Actions" className="box-content p-4">
           {user?.role === "user" ? (
             <Fragment>
-              {NavDropdown_USER.map((item: TRoutes) => (
-                <DropdownItem
-                  key={item.label}
-                  className="dark:bg-default-100 bg-default-200 my-1"
-                  onClick={() => handleNavigation(item?.href)}
-                >
-                  {item?.label}
-                </DropdownItem>
-              ))}
+              {NavDropdown_USER.map((item: TRoutes) => {
+                const isActive = pathname === item.href;
+
+                return (
+                  <DropdownItem
+                    key={item.label}
+                    className={`dark:bg-default-100 bg-default-200 my-1 ${isActive ? "text-center bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-violet-200" : ""}`}
+                    onClick={() => handleNavigation(item?.href)}
+                  >
+                    {item?.label}
+                  </DropdownItem>
+                );
+              })}
             </Fragment>
           ) : (
             <Fragment>
-              {NavDropdown_ADMIN.map((item: TRoutes) => (
-                <DropdownItem
-                  key={item.label}
-                  className="dark:bg-default-100 bg-default-200 my-1"
-                  onClick={() => handleNavigation(item?.href)}
-                >
-                  {item?.label}
-                </DropdownItem>
-              ))}
+              {NavDropdown_ADMIN.map((item: TRoutes) => {
+                const isActive = pathname === item.href;
+
+                return (
+                  <DropdownItem
+                    key={item.label}
+                    className={`dark:bg-default-100 bg-default-200 my-1 ${isActive ? "text-center bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-violet-200" : ""}`}
+                    onClick={() => handleNavigation(item?.href)}
+                  >
+                    {item?.label}
+                  </DropdownItem>
+                );
+              })}
             </Fragment>
           )}
           <DropdownItem

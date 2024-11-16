@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { getCurrentUser } from "../services/AuthService";
+import { getUserProfile } from "../services/User";
 import { IUser } from "../types";
 
 interface IUserProviderValues {
@@ -17,11 +18,13 @@ interface IUserProviderValues {
   isLoading: boolean;
   setUser: (user: IUser | null) => void;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
+  userProfile: IUser | null;
+  setUserProfile: Dispatch<SetStateAction<IUser | null>>;
 }
 const UserContext = createContext<IUserProviderValues | undefined>(undefined);
 const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
-
+  const [userProfile, setUserProfile] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const handleUser = async () => {
@@ -32,11 +35,34 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const { data }: { data: IUser } = await getUserProfile();
+
+        setUserProfile(data);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
+
+  useEffect(() => {
     handleUser();
   }, [isLoading]);
 
   return (
-    <UserContext.Provider value={{ user, setUser, isLoading, setIsLoading }}>
+    <UserContext.Provider
+      value={{
+        user,
+        userProfile,
+        setUserProfile,
+        setUser,
+        isLoading,
+        setIsLoading,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

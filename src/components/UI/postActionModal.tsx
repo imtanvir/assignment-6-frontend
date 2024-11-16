@@ -72,17 +72,18 @@ export default function PostActionModal({
       setLastComments(lastComment);
     }
   }, [data]);
+  // const truncatedHtml = truncate(post, 50);
 
   return (
     <>
       <Modal
-        className="z-[999]"
+        className="z-[999] tanvir2"
         isOpen={isOpen}
         scrollBehavior="inside"
         size={"5xl"}
         onOpenChange={onOpenChange}
       >
-        <ModalContent>
+        <ModalContent className="z-[999] tanvir">
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1 text-center">

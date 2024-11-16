@@ -23,7 +23,6 @@ export const registerUser = async (formData: FieldValues) => {
 export const editUser = async (formData: FieldValues) => {
   const user = await getCurrentUser();
 
-  console.log({ lastData: formData, user });
   try {
     const { data } = await axiosInstance.put(
       `/user/update/${user?._id}`,
@@ -37,7 +36,6 @@ export const editUser = async (formData: FieldValues) => {
 
     return data;
   } catch (error: any) {
-    console.log({ error });
     throw new Error("Failed user update!");
   }
 };
@@ -99,21 +97,14 @@ export const getUserPosts = async () => {
   }
 };
 export const getAllUser = async () => {
-  const accessToken = cookies().get("accessToken")?.value;
+  const { data } = await axiosInstance.get("/user/all");
 
-  if (accessToken) {
-    const { data } = await axiosInstance.get("/user/all");
-
-    return data;
-  } else {
-    return [];
-  }
+  return data;
 };
 
 //  create a contact us server action
 export const createContactUs = async (contactData: FieldValues) => {
   try {
-    console.log("🚀 ~ createContactUs ~ contactData:", contactData);
     const { data } = await axiosInstance.post(
       "/post/send-feedback",
       contactData

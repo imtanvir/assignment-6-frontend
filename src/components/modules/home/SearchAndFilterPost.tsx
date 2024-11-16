@@ -1,7 +1,7 @@
 "use client";
 import { Input } from "@nextui-org/input";
+import truncate from "html-truncate";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 
@@ -14,29 +14,15 @@ import useDebounce from "@/src/hooks/debounce.hook";
 import { useSearchPosts } from "@/src/hooks/post.hook";
 import { IPost } from "@/src/types";
 
-const stripHtml = (html: string) => {
-  const div = document.createElement("div");
-
-  div.innerHTML = html;
-
-  return div.textContent || div.innerText || "";
-};
-
-const truncateText = (text: string, wordLimit: number) => {
-  const words = text.split(" ").slice(0, wordLimit).join(" ");
-
-  return words + "...";
-};
 const SearchAndFilterPost = () => {
   const { register, handleSubmit, watch } = useForm();
   const { mutate: handleSearch, data, isPending, isSuccess } = useSearchPosts();
   const [searchResults, setSearchResults] = useState<IPost[] | []>([]);
   const searchTerm = useDebounce(watch("search"));
 
-  const router = useRouter();
-
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    console.log({ data });
+    // console.log({ data });
+    return;
   };
 
   useEffect(() => {
@@ -51,14 +37,17 @@ const SearchAndFilterPost = () => {
     }
     if (!isPending && isSuccess && data && searchTerm) {
       setSearchResults(data?.data ?? []);
-      console.log(data);
     }
   }, [isPending, isSuccess, data, searchTerm]);
+
+  const truncatedHtml = (post: string) => {
+    return truncate(post, 30);
+  };
 
   return (
     <Container>
       <div className="py-10 max-w-xl flex-1 mx-auto">
-        <h1 className="text-center md:text-4xl text-2xl font-medium pb-4">
+        <h1 className="text-center md:text-4xl text-2xl font-extralight pb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
           Explore the Best Tips & Advice for a Healthier, Happier Pet!
         </h1>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -96,8 +85,15 @@ const SearchAndFilterPost = () => {
                       />
                       <div className="p-5">
                         <div
-                          dangerouslySetInnerHTML={{ __html: post?.post }}
+                          dangerouslySetInnerHTML={{
+                            __html: truncatedHtml(post?.post),
+                          }}
                           className={Styles.Output}
+                          style={{
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
                         />
                       </div>
                     </div>

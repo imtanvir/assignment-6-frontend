@@ -1,21 +1,26 @@
 "use server";
 
-import { getCurrentUser } from "../AuthService";
+import { cookies } from "next/headers";
 
-import axiosInstance from "@/src/lib/AxiosInstance";
+import envConfig from "@/src/config/envConfig";
 
 export const getUserProfile = async () => {
-  const currentUser = await getCurrentUser();
+  const cookieStore = cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
 
-  try {
-    if (currentUser?.role && currentUser?.email) {
-      const res = await axiosInstance.get(`/user/`);
+  const fetchOptions: RequestInit = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    cache: "no-store" as RequestCache,
+  };
+  const response = await fetch(`${envConfig.baseApi}/user/`, fetchOptions);
 
-      return res.data;
-    } else {
-      return {};
-    }
-  } catch (error) {
-    throw new Error("Something went wrong!");
+  if (!response.ok) {
+    throw new Error("Failed to get user profile!");
   }
+
+  return response.json();
 };

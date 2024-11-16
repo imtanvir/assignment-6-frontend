@@ -1,56 +1,74 @@
 // UserFollowButton component
 import { Button } from "@nextui-org/button";
-import { Dispatch, SetStateAction, useState } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
 
+import { useUser } from "@/src/context/user.provider";
 import { useFollowToggler } from "@/src/hooks/post.hook";
 import { IUser } from "@/src/types";
 
 const UserFollowButton = ({
   user,
   viewer,
-  setAction,
   tableType,
-  setMainUser,
-  onUserUnfollowed, // NEW PROP
 }: {
   user: IUser;
   viewer: IUser;
-  setAction: Dispatch<SetStateAction<boolean>>;
+  actionFollowToggler: MutableRefObject<boolean>;
   tableType?: string;
-  setMainUser: Dispatch<SetStateAction<IUser[]>>;
-  onUserUnfollowed: (userId: string) => void; // NEW PROP TYPE
 }) => {
+  const { setUserProfile } = useUser();
+
   let viewerFollowingOrFollower =
     tableType === "following" ? viewer?.following : viewer?.followers;
 
   const isFollowing = viewerFollowingOrFollower?.find(
     (follower) => follower._id === user?._id
   );
+
   const [isFollowed, setIsFollowed] = useState(isFollowing ? true : false);
 
   const {
     mutate: followToggler,
     isPending: followTogglerPending,
     isSuccess: followTogglerSuccess,
+    data: followTogglerData,
   } = useFollowToggler();
 
   const handleFollowToggler = () => {
-    const unfollowing = isFollowed && tableType === "following";
-
-    setIsFollowed(!isFollowed);
-
     followToggler({
       followUser: user?._id,
       actionUserId: viewer?._id as string,
     });
-
-    setAction(true);
-
-    // If the user is unfollowed and the table type is "following", call onUserUnfollowed
-    if (unfollowing) {
-      onUserUnfollowed(user._id);
-    }
   };
+
+  // If the user is unfollowed and the table type is "following", call onUserUnfollowed
+
+  useEffect(() => {
+    const unfollowingSetter = async () => {
+      if (!followTogglerPending && followTogglerSuccess) {
+        const unfollowing = isFollowed && tableType === "following";
+
+        setIsFollowed(!isFollowed);
+
+        if (unfollowing) {
+          const updateFollowing = viewerFollowingOrFollower?.filter(
+            (following) => following._id !== user._id
+          );
+
+          setUserProfile((prev: IUser | null) =>
+            prev?.following
+              ? {
+                  ...prev,
+                  following: updateFollowing,
+                }
+              : null
+          );
+        }
+      }
+    };
+
+    unfollowingSetter();
+  }, [followTogglerPending, followTogglerSuccess, followTogglerData]);
 
   return (
     <>

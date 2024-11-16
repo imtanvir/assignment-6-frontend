@@ -16,7 +16,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="h-screen lg:w-[15%] md:w-[25%] w-[30%] z-[99] md:visible invisible left-0 md:relative absolute transition-all  overflow-y-auto bg-gradient-to-l from-indigo-900 to-indigo-500 dark:from-slate-900 dark:to-slate-800">
+      <div className="h-screen lg:w-[15%] md:w-[25%] w-[30%] z-[50] md:visible invisible left-0 md:relative absolute transition-all  overflow-y-auto bg-gradient-to-l from-indigo-900 to-indigo-500 dark:from-slate-900 dark:to-slate-800">
         <Button
           isIconOnly
           aria-label="Toggle sidebar"

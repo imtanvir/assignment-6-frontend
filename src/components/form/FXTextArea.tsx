@@ -16,8 +16,6 @@ const FXTextArea = ({ name, label, variant = "bordered" }: ITextArea) => {
 
   const value = useWatch({ name });
 
-  console.log({ value });
-
   return (
     <>
       <Textarea

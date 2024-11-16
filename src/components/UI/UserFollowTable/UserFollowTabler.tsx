@@ -9,7 +9,8 @@ import {
   Tooltip,
   User,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { UseQueryResult } from "@tanstack/react-query";
+import { useRef } from "react";
 
 import UserFollowButton from "./UserFollowButton";
 
@@ -21,6 +22,7 @@ const columns = [
   { key: "action", label: "Action" },
 ];
 
+export type RefetchType = UseQueryResult<IUser, Error>["refetch"];
 const UserFollowTable = ({
   followers = [],
   following = [],
@@ -31,19 +33,11 @@ const UserFollowTable = ({
   following?: IUser[];
   viewer: IUser;
   tableType?: string;
+  refetch?: RefetchType;
 }) => {
   const users = tableType === "following" ? following : followers;
 
-  const [mainUser, setMainUser] = useState<IUser[]>(users || []);
-  const [action, setAction] = useState<boolean>(false);
-
-  // Function to handle user unfollow
-  const onUserUnfollowed = (userId: string) => {
-    console.log("User unfollowed:", userId);
-    setMainUser((prevUsers) => prevUsers.filter((user) => user._id !== userId));
-  };
-
-  console.log({ mainUser });
+  const actionFollowToggler = useRef<boolean>(false);
 
   return (
     <Table aria-label="User follow table">
@@ -51,7 +45,7 @@ const UserFollowTable = ({
         {(column) => (
           <TableColumn
             key={column.key}
-            align={mainUser.length === 0 ? "center" : "start"}
+            align="start"
             className={` ${
               column.key === "action"
                 ? "flex justify-end me-5 pe-7 items-center"
@@ -62,15 +56,16 @@ const UserFollowTable = ({
           </TableColumn>
         )}
       </TableHeader>
-      {mainUser?.length === 0 ? (
+      {users?.length === 0 ? (
         <TableBody
+          className=" focus-within:shadow-none border-none"
           emptyContent={`${tableType === "following" ? "You are not following anyone." : "You have no followers."}`}
         >
           {[]}
         </TableBody>
       ) : (
         <TableBody>
-          {mainUser?.map((user: IUser) => (
+          {users?.map((user: IUser) => (
             <TableRow key={user?._id}>
               <TableCell>
                 <User
@@ -92,12 +87,10 @@ const UserFollowTable = ({
                   <Tooltip content="">
                     <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
                       <UserFollowButton
-                        setAction={setAction}
-                        setMainUser={setMainUser}
+                        actionFollowToggler={actionFollowToggler}
                         tableType={tableType}
                         user={user}
                         viewer={viewer}
-                        onUserUnfollowed={onUserUnfollowed} // Pass onUserUnfollowed here
                       />
                     </span>
                   </Tooltip>

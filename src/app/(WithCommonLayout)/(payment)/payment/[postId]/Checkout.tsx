@@ -39,7 +39,6 @@ const Checkout = ({
       );
 
       setClientSecret(response?.clientSecret);
-      console.log({ response });
     };
 
     if (paymentRef.current === 0 && payAmount !== 0) {

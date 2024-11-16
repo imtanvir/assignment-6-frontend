@@ -11,21 +11,17 @@ import PostLoadingSkeleton from "./postLoadingSkeleton";
 import UserFollowTable from "./UserFollowTable/UserFollowTabler";
 
 import { useUser } from "@/src/context/user.provider";
-import { useGetAllUser, useUserProfile } from "@/src/hooks/user.hooks";
 import { getUserPosts } from "@/src/services/AuthService";
 import { IPost, IUser } from "@/src/types";
 
+// export const dynamic = "force-dynamic";
+
 export default function UserProfile() {
-  const { user } = useUser();
+  const { user, userProfile } = useUser();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const { data: userProfileData } = useUserProfile();
-
   useEffect(() => {
-    if (user?.name) {
-      getName(user?.name as string);
-    }
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -44,51 +40,47 @@ export default function UserProfile() {
     fetchData();
   }, []);
 
-  const getName = (name: string) => {
-    if (name) {
-      const match = name.match(/^(\w)\w*\s*(\w)?/i);
+  // const getName = (name: string) => {
+  //   if (name) {
+  //     const match = name.match(/^(\w)\w*\s*(\w)?/i);
 
-      return match ? (match[1] + (match[2] || "")).toUpperCase() : "";
-    }
-  };
+  //     return match ? (match[1] + (match[2] || "")).toUpperCase() : "";
+  //   }
+  // };
 
-  const viewer =
-    user?.role === "user" && user?.email ? userProfileData?.data : {};
+  const followers = userProfile?.followers as IUser[];
+  const following = userProfile?.following as IUser[];
 
-  const { data: allUser } = useGetAllUser();
-
-  const currentUser = allUser?.data?.find(
-    (user: IUser) => user?.email === user?.email
-  );
+  const viewer = user?.role === "user" && user?.email ? userProfile : {};
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
         <Avatar
-          name={user?.name ? user?.name?.split(" ")[0] : ""}
+          name={userProfile?.name ? userProfile?.name?.split(" ")[0] : ""}
           size="lg"
-          src={user?.image[0]?.url ? user?.image[0]?.url : ""}
+          src={userProfile?.image[0]?.url ? userProfile?.image[0]?.url : ""}
         />
         <div className="flex-1 text-center md:text-left">
-          <h1 className="text-3xl font-bold">{user?.name}</h1>
-          <p className="mt-2 max-w-md">{user?.email}</p>
+          <h1 className="text-3xl font-bold">{userProfile?.name}</h1>
+          <p className="mt-2 max-w-md">{userProfile?.email}</p>
         </div>
         <div className="flex gap-8 text-center py-4">
           <div>
             <p className="text-base font-bold">
-              {user?.address
-                ? user?.address.split(" ")[0] +
+              {userProfile?.address
+                ? userProfile?.address.split(" ")[0] +
                   " " +
-                  user?.address.split(" ")[1]
+                  userProfile?.address.split(" ")[1]
                 : ""}
             </p>
           </div>
           <Divider className="h-5" orientation="vertical" />
           <div>
             <p className="text-base font-bold">
-              {user?.role === "admin"
+              {userProfile?.role === "admin"
                 ? "Admin"
-                : user?.role === "user"
+                : userProfile?.role === "user"
                   ? "User"
                   : ""}
             </p>
@@ -108,7 +100,7 @@ export default function UserProfile() {
                     {loading && <PostLoadingSkeleton />}
                     {posts.map((post: IPost) => (
                       <div key={post._id}>
-                        <PostCard singlePost={post} />
+                        <PostCard singlePost={post} viewer={viewer as IUser} />
                       </div>
                     ))}
                     {posts.length === 0 && !loading && (
@@ -128,9 +120,9 @@ export default function UserProfile() {
               <CardBody>
                 <h1>The people who followed you</h1>
                 <UserFollowTable
-                  followers={userProfileData?.data?.followers as IUser[]}
+                  followers={followers}
                   tableType="followers"
-                  viewer={viewer}
+                  viewer={viewer as IUser}
                 />
               </CardBody>
             </Card>
@@ -140,9 +132,9 @@ export default function UserProfile() {
               <CardBody>
                 <h1>The people you have following</h1>
                 <UserFollowTable
-                  following={userProfileData?.data?.following as IUser[]}
+                  following={following}
                   tableType="following"
-                  viewer={viewer}
+                  viewer={viewer as IUser}
                 />
               </CardBody>
             </Card>

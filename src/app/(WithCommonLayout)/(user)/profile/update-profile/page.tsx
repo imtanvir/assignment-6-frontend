@@ -12,21 +12,38 @@ import {
 
 import FXInput from "@/src/components/form/FXInput";
 import Loading from "@/src/components/UI/Loading";
+import { useUser } from "@/src/context/user.provider";
 import { useUserEdit } from "@/src/hooks/auth.hook";
 import { useUserProfile } from "@/src/hooks/user.hooks";
 
 const EditProfile = () => {
+  const { userProfile, setUserProfile } = useUser();
   const { data: userProfileData } = useUserProfile();
+  const router = useRouter();
 
   const [imageFiles, setImageFiles] = useState<File[] | []>([]);
   const [imagePreviews, setImagePreviews] = useState<string[] | []>([
     userProfileData?.data?.image[0]?.url as string,
   ]);
+  const [defaultData, setDefaultData] = useState({
+    email: userProfileData?.data?.email,
+    address: userProfileData?.data?.address,
+    name: userProfileData?.data?.name,
+    phone: userProfileData?.data?.phone,
+    imageUrl: userProfileData?.data?.image[0]?.url,
+  });
 
-  console.log({ userProfileData }, userProfileData?.data?.image[0]?.url);
-  // const searchParams = useSearchParams();
-  // const redirect = searchParams.get("redirect");
-  const router = useRouter();
+  useEffect(() => {
+    setDefaultData({
+      email: userProfileData?.data?.email,
+      address: userProfileData?.data?.address,
+      name: userProfileData?.data?.name,
+      phone: userProfileData?.data?.phone,
+      imageUrl: userProfileData?.data?.image[0]?.url,
+    });
+  }, [userProfileData?.data]);
+
+  console.log({ userProfileData });
 
   const { mutate: editUser, isPending, isSuccess } = useUserEdit();
 
@@ -39,16 +56,43 @@ const EditProfile = () => {
       name: data?.name,
       phone: data?.phone,
     };
+    const updatedData = {
+      email: data.email,
+      address: data.address,
+      name: data.name,
+      phone: data.phone,
+      image: [
+        {
+          id: Math.random().toString(),
+          isRemove: false,
+          url: imagePreviews[0],
+        },
+      ],
+    };
+
+    setUserProfile((prev) => {
+      if (prev) {
+        return {
+          ...prev,
+          ...updatedData,
+        };
+      }
+
+      return null;
+    });
 
     formData.append("data", JSON.stringify(authData));
     formData.append("file", imageFiles[0]);
-    console.log({ formData });
     editUser(formData);
   };
 
   useEffect(() => {
+    router.refresh();
+  }, []);
+
+  useEffect(() => {
     if (!isPending && isSuccess) {
-      router.push("/");
+      router.push("/profile");
     }
   }, [isPending, isSuccess]);
 
@@ -87,7 +131,7 @@ const EditProfile = () => {
                   label="Name"
                   name="name"
                   type="text"
-                  value={userProfileData?.data?.name}
+                  value={defaultData?.name}
                   variant="flat"
                 />
               </div>
@@ -97,7 +141,7 @@ const EditProfile = () => {
                   label="Email"
                   name="email"
                   type="email"
-                  value={userProfileData?.data?.email}
+                  value={defaultData?.email}
                   variant="flat"
                 />
               </div>
@@ -106,7 +150,7 @@ const EditProfile = () => {
                   label="Address"
                   name="address"
                   type="address"
-                  value={userProfileData?.data?.address}
+                  value={defaultData?.address}
                   variant="flat"
                 />
               </div>
@@ -115,7 +159,7 @@ const EditProfile = () => {
                   label="Phone"
                   name="phone"
                   type="text"
-                  value={userProfileData?.data?.phone}
+                  value={defaultData?.phone}
                   variant="flat"
                 />
               </div>
