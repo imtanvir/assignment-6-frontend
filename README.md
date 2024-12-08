@@ -1,6 +1,6 @@
 # PawPedia - Pet Care, Tips and Advice Blogging site.
 
-[Live](https://assignment-6-frontend-mauve.vercel.app)
+[Live](https://pawpedia.vercel.app/)
 
 [Server](https://pet-care-backend-api.vercel.app)
 
